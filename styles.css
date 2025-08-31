@@ -33,6 +33,12 @@ body {
     color: #4a5568;
     font-size: 2rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+h1 img {
+  margin-right: 25px; 
 }
 
 .header h1 i {
@@ -430,6 +436,89 @@ body {
     margin-top: 30px;
 }
 
+/* Import/Export Modal Styles */
+.format-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.import-options {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.import-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.import-options input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1001;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 350px;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification-success {
+    border-left: 4px solid #48bb78;
+}
+
+.notification-success i {
+    color: #48bb78;
+}
+
+.notification-error {
+    border-left: 4px solid #e53e3e;
+}
+
+.notification-error i {
+    color: #e53e3e;
+}
+
+.notification-info {
+    border-left: 4px solid #4299e1;
+}
+
+.notification-info i {
+    color: #4299e1;
+}
+
+.notification span {
+    font-size: 14px;
+    color: #2d3748;
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
     .header {
         flex-direction: column;
@@ -438,7 +527,8 @@ body {
     }
     
     .header-actions {
-        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
         width: 100%;
     }
     
@@ -456,5 +546,20 @@ body {
     
     .form-actions {
         flex-direction: column;
+    }
+    
+    .format-options {
+        flex-direction: column;
+    }
+    
+    .notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        transform: translateY(-100px);
+    }
+    
+    .notification.show {
+        transform: translateY(0);
     }
 }
