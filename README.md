@@ -108,16 +108,6 @@ The system is designed to be easily customizable:
 - HTML content is stored as-is without sanitization
 - Only use trusted HTML files from known sources
 
-## Future Enhancements
-
-Potential improvements you could add:
-- Drag-and-drop file uploads
-- Webapp templates and starter kits
-- Cloud storage integration
-- Webapp versioning and backup
-- Bulk operations (delete multiple webapps)
-- Advanced filtering and sorting options
-
 ## License
 
 This project is open source and available under the MIT License.
