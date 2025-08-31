@@ -1,22 +1,27 @@
-# Webapp Manager
+# Monkey Spa - Webapp Manager
 
-A modern, responsive web application for managing your collection of single-page HTML webapps. Features a beautiful grid interface with metadata tracking, search capabilities, and easy webapp launching.
+A modern, responsive web application for managing your collection of single-page HTML webapps. Features a beautiful grid interface with metadata tracking, search capabilities, automatic screenshot generation, and easy webapp launching.
+
+![Monkey Spa Interface](screenshot.png)
 
 ## Features
 
 - **Grid View Interface**: Clean, modern card-based layout showing webapp previews
+- **Automatic Screenshots**: Auto-generated previews of your webapps using html2canvas
+- **Manual Screenshot Upload**: Option to upload custom screenshots for better quality
 - **Metadata Management**: Track name, description, category, tags, usage statistics, and dates
 - **Search & Filter**: Find webapps by name, description, or tags with category filtering
 - **CRUD Operations**: Add, edit, and delete webapps with intuitive modals
+- **Import/Export**: Backup and share webapp collections in JSON or XML format
 - **Usage Tracking**: Monitor when webapps were last used and usage frequency
-- **Local Storage**: All data persisted locally in your browser
+- **Local Storage**: All data persisted locally in your browser with no reliance on the original HTML file
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **Modern UI**: Beautiful gradients, smooth animations, and professional styling
 
 ## Getting Started
 
-1. Open `index.html` in your web browser
-2. Click "Add Webapp" to add your first single-page HTML application
+1. Open `monkey-spa.html` in your web browser
+2. Click "Add Webapp" to add your first single-page HTML application. Samples included.
 3. Fill in the details and upload your HTML file
 4. Your webapp will appear in the grid with a preview card
 5. Click on any webapp card to launch it in a new window
@@ -29,6 +34,7 @@ A modern, responsive web application for managing your collection of single-page
 - Select a category (Productivity, Games, Utilities, Entertainment, Other)
 - Add comma-separated tags for better organization
 - Upload your HTML file
+- Optionally upload a custom screenshot (otherwise one will be auto-generated)
 - Click "Save Webapp"
 
 ### Managing Webapps
@@ -40,6 +46,16 @@ A modern, responsive web application for managing your collection of single-page
 - Use the search bar to find webapps by name, description, or tags
 - Filter by category using the dropdown
 - Sort by date added, name, or last used
+
+### Import & Export
+- **Export**: Click "Export" to download your webapp collection
+  - Choose JSON or XML format
+  - Includes all webapp data, screenshots, and metadata
+  - Automatic filename generation with timestamps
+- **Import**: Click "Import" to restore or merge webapp collections
+  - Support for both JSON and XML files
+  - Choose "Merge" to add new webapps or "Replace" to overwrite all
+  - Duplicate prevention by webapp ID
 
 ## Sample Webapps
 
@@ -56,7 +72,7 @@ You can add these sample webapps to test the manager functionality.
 ### File Structure
 ```
 spa/
-├── index.html          # Main webapp manager interface
+├── monkey-spa.html          # Main webapp manager interface
 ├── styles.css          # Modern CSS styling with responsive design
 ├── script.js           # JavaScript functionality and webapp management
 ├── samples/            # Example webapps for demonstration
@@ -95,12 +111,12 @@ The system is designed to be easily customizable:
 ## Future Enhancements
 
 Potential improvements you could add:
-- Export/import webapp collections
-- Webapp screenshots using html2canvas
 - Drag-and-drop file uploads
 - Webapp templates and starter kits
 - Cloud storage integration
 - Webapp versioning and backup
+- Bulk operations (delete multiple webapps)
+- Advanced filtering and sorting options
 
 ## License
 
