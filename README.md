@@ -57,6 +57,10 @@ A modern, responsive web application for managing your collection of single-page
   - Choose "Merge" to add new webapps or "Replace" to overwrite all
   - Duplicate prevention by webapp ID
 
+Note that since all apps are serialized into the exported file, this
+makes it easy to transfer your entire app collection to other systems
+with a single file.
+
 ## Sample Webapps
 
 The `samples/` directory contains three example webapps to demonstrate the system:
@@ -68,19 +72,6 @@ The `samples/` directory contains three example webapps to demonstrate the syste
 You can add these sample webapps to test the manager functionality.
 
 ## Technical Details
-
-### File Structure
-```
-spa/
-├── monkey-spa.html          # Main webapp manager interface
-├── styles.css          # Modern CSS styling with responsive design
-├── script.js           # JavaScript functionality and webapp management
-├── samples/            # Example webapps for demonstration
-│   ├── calculator.html
-│   ├── todo-app.html
-│   └── color-picker.html
-└── README.md           # This file
-```
 
 ### Data Storage
 - All webapp metadata is stored in browser localStorage
