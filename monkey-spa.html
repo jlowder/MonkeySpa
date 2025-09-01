@@ -607,10 +607,11 @@ h1 img {
             </select>
             <select id="categoryFilter" class="filter-select">
                 <option value="">All Categories</option>
+		<option value="devtools">Dev Tools</option>
+		<option value="research">Research</option>
                 <option value="productivity">Productivity</option>
-                <option value="games">Games</option>
                 <option value="utilities">Utilities</option>
-                <option value="entertainment">Entertainment</option>
+                <option value="fun">Fun</option>
                 <option value="other">Other</option>
             </select>
         </div>
@@ -651,10 +652,11 @@ h1 img {
                     <label for="appCategory">Category</label>
                     <select id="appCategory">
                         <option value="other">Other</option>
+			<option value="devtools">Dev Tools</option>
+			<option value="research">Research</option>
                         <option value="productivity">Productivity</option>
-                        <option value="games">Games</option>
                         <option value="utilities">Utilities</option>
-                        <option value="entertainment">Entertainment</option>
+                        <option value="fun">Fun</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1561,9 +1563,10 @@ class WebappManager {
         const getCategoryColor = (category) => {
             const colors = {
                 productivity: '#48bb78',
-                games: '#ed8936',
+                fun: '#ed8936',
                 utilities: '#4299e1',
-                entertainment: '#9f7aea',
+                research: '#9f7aea',
+                devtools: '#ff8463',
                 other: '#667eea'
             };
             return colors[category] || colors.other;
