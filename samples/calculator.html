@@ -3,67 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calculator</title>
+    <title>Scientific Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f0f0f0;
         }
         .calculator {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            width: 300px;
+            background: #f0f0f0;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 10px 10px 20px #d9d9d9, -10px -10px 20px #ffffff;
+            width: 320px;
         }
         .display {
             width: 100%;
-            height: 60px;
-            font-size: 24px;
+            height: 70px;
+            font-size: 28px;
             text-align: right;
-            padding: 0 15px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 20px;
             box-sizing: border-box;
+            background: #f0f0f0;
+            box-shadow: inset 5px 5px 10px #d9d9d9, inset -5px -5px 10px #ffffff;
+            color: #333;
         }
         .buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 15px;
         }
         button {
-            height: 50px;
+            height: 55px;
             font-size: 18px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        .number, .decimal {
-            background: #f8f9fa;
+            background: #f0f0f0;
             color: #333;
-        }
-        .operator {
-            background: #667eea;
-            color: white;
-        }
-        .equals {
-            background: #28a745;
-            color: white;
-        }
-        .clear {
-            background: #dc3545;
-            color: white;
+            box-shadow: 5px 5px 10px #d9d9d9, -5px -5px 10px #ffffff;
+            transition: all 0.1s ease-in-out;
         }
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 3px 3px 6px #d9d9d9, -3px -3px 6px #ffffff;
+        }
+        button:active {
+            box-shadow: inset 5px 5px 10px #d9d9d9, inset -5px -5px 10px #ffffff;
+            font-size: 17.5px;
+        }
+        .operator, .scientific {
+            color: #3498db;
+        }
+        .equals {
+            background: #2ecc71;
+            color: white;
+            box-shadow: 5px 5px 10px #25a25a, -5px -5px 10px #37f688;
+        }
+        .equals:hover {
+            background: #29b765;
+            box-shadow: 3px 3px 6px #25a25a, -3px -3px 6px #37f688;
+        }
+        .equals:active {
+            box-shadow: inset 5px 5px 10px #25a25a, inset -5px -5px 10px #37f688;
+        }
+        .clear {
+            color: #e74c3c;
         }
     </style>
 </head>
@@ -71,9 +85,24 @@
     <div class="calculator">
         <input type="text" class="display" id="display" readonly>
         <div class="buttons">
+            <button class="scientific" onclick="appendToDisplay('sin(')">sin</button>
+            <button class="scientific" onclick="appendToDisplay('cos(')">cos</button>
+            <button class="scientific" onclick="appendToDisplay('tan(')">tan</button>
+            <button class="scientific" onclick="appendToDisplay('^')">^</button>
+
+            <button class="scientific" onclick="appendToDisplay('log(')">log</button>
+            <button class="scientific" onclick="appendToDisplay('ln(')">ln</button>
+            <button class="scientific" onclick="appendToDisplay('(')">(</button>
+            <button class="scientific" onclick="appendToDisplay(')')">)</button>
+
+            <button class="scientific" onclick="appendToDisplay('√(')">√</button>
+            <button class="scientific" onclick="appendToDisplay('!')">!</button>
+            <button class="scientific" onclick="appendToDisplay('π')">π</button>
+            <button class="scientific" onclick="appendToDisplay('e')">e</button>
+
             <button class="clear" onclick="clearDisplay()">C</button>
             <button class="clear" onclick="deleteLast()">⌫</button>
-            <button class="operator" onclick="appendToDisplay('/')">/</button>
+            <button class="operator" onclick="appendToDisplay('/')">÷</button>
             <button class="operator" onclick="appendToDisplay('*')">×</button>
             
             <button class="number" onclick="appendToDisplay('7')">7</button>
@@ -89,77 +118,66 @@
             <button class="number" onclick="appendToDisplay('1')">1</button>
             <button class="number" onclick="appendToDisplay('2')">2</button>
             <button class="number" onclick="appendToDisplay('3')">3</button>
-            <button class="equals" onclick="calculate()" rowspan="2">=</button>
-            
-            <button class="number" onclick="appendToDisplay('0')" colspan="2" style="grid-column: span 2;">0</button>
             <button class="decimal" onclick="appendToDisplay('.')">.</button>
+
+            <button class="number" onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
+            <button class="equals" onclick="calculate()" style="grid-column: span 2;">=</button>
         </div>
     </div>
 
     <script>
         let display = document.getElementById('display');
-        let currentInput = '';
-        let operator = '';
-        let previousInput = '';
 
         function appendToDisplay(value) {
-            if (['+', '-', '*', '/'].includes(value)) {
-                if (currentInput !== '') {
-                    if (previousInput !== '' && operator !== '') {
-                        calculate();
-                    }
-                    previousInput = currentInput;
-                    operator = value;
-                    currentInput = '';
-                    display.value = previousInput + ' ' + value + ' ';
-                }
-            } else {
-                currentInput += value;
-                display.value = (previousInput && operator ? previousInput + ' ' + operator + ' ' : '') + currentInput;
-            }
-        }
-
-        function calculate() {
-            if (previousInput !== '' && currentInput !== '' && operator !== '') {
-                let result;
-                const prev = parseFloat(previousInput);
-                const current = parseFloat(currentInput);
-                
-                switch (operator) {
-                    case '+':
-                        result = prev + current;
-                        break;
-                    case '-':
-                        result = prev - current;
-                        break;
-                    case '*':
-                        result = prev * current;
-                        break;
-                    case '/':
-                        result = current !== 0 ? prev / current : 'Error';
-                        break;
-                    default:
-                        return;
-                }
-                
-                display.value = result;
-                currentInput = result.toString();
-                previousInput = '';
-                operator = '';
-            }
+            display.value += value;
         }
 
         function clearDisplay() {
             display.value = '';
-            currentInput = '';
-            previousInput = '';
-            operator = '';
         }
 
         function deleteLast() {
-            if (currentInput !== '') {
-                currentInput = currentInput.slice(0, -1);
-                display.value = (previousInput && operator ? previousInput + ' ' + operator + ' ' : '') + currentInput;
+            display.value = display.value.slice(0, -1);
+        }
+
+        function factorial(n) {
+            if (n < 0 || n % 1 !== 0) {
+                return 'Error'; // Factorial is defined for non-negative integers only
+            }
+            if (n === 0 || n === 1) {
+                return 1;
+            }
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function calculate() {
+            let expression = display.value;
+            try {
+                // Replace user-friendly representations with JS Math equivalents
+                expression = expression.replace(/π/g, 'Math.PI');
+                expression = expression.replace(/e/g, 'Math.E');
+                expression = expression.replace(/√\(/g, 'Math.sqrt(');
+                expression = expression.replace(/sin\(/g, 'Math.sin(');
+                expression = expression.replace(/cos\(/g, 'Math.cos(');
+                expression = expression.replace(/tan\(/g, 'Math.tan(');
+                expression = expression.replace(/log\(/g, 'Math.log10(');
+                expression = expression.replace(/ln\(/g, 'Math.log(');
+                expression = expression.replace(/\^/g, '**');
+
+                // Handle factorial, e.g., 5! -> factorial(5)
+                expression = expression.replace(/(\d+\.?\d*)!/g, (match, number) => {
+                    return `factorial(${number})`;
+                });
+
+                // Evaluate the expression using Function constructor for safer evaluation
+                const result = new Function('return ' + expression)();
+                display.value = result;
+            } catch (error) {
+                display.value = 'Error';
             }
         }
 
@@ -168,9 +186,10 @@
             const key = event.key;
             if ('0123456789.'.includes(key)) {
                 appendToDisplay(key);
-            } else if ('+-*/'.includes(key)) {
+            } else if ('+-*/^()'.includes(key)) {
                 appendToDisplay(key);
             } else if (key === 'Enter' || key === '=') {
+                event.preventDefault(); // prevent form submission
                 calculate();
             } else if (key === 'Escape' || key === 'c' || key === 'C') {
                 clearDisplay();
