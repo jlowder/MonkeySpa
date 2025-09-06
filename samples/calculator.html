@@ -53,6 +53,10 @@
             background: #667eea;
             color: white;
         }
+        .scientific {
+            background: #5bc0de;
+            color: white;
+        }
         .equals {
             background: #28a745;
             color: white;
@@ -71,9 +75,24 @@
     <div class="calculator">
         <input type="text" class="display" id="display" readonly>
         <div class="buttons">
+            <button class="scientific" onclick="appendToDisplay('sin(')">sin</button>
+            <button class="scientific" onclick="appendToDisplay('cos(')">cos</button>
+            <button class="scientific" onclick="appendToDisplay('tan(')">tan</button>
+            <button class="scientific" onclick="appendToDisplay('^')">^</button>
+
+            <button class="scientific" onclick="appendToDisplay('log(')">log</button>
+            <button class="scientific" onclick="appendToDisplay('ln(')">ln</button>
+            <button class="scientific" onclick="appendToDisplay('(')">(</button>
+            <button class="scientific" onclick="appendToDisplay(')')">)</button>
+
+            <button class="scientific" onclick="appendToDisplay('√(')">√</button>
+            <button class="scientific" onclick="appendToDisplay('!')">!</button>
+            <button class="scientific" onclick="appendToDisplay('π')">π</button>
+            <button class="scientific" onclick="appendToDisplay('e')">e</button>
+
             <button class="clear" onclick="clearDisplay()">C</button>
             <button class="clear" onclick="deleteLast()">⌫</button>
-            <button class="operator" onclick="appendToDisplay('/')">/</button>
+            <button class="operator" onclick="appendToDisplay('/')">÷</button>
             <button class="operator" onclick="appendToDisplay('*')">×</button>
             
             <button class="number" onclick="appendToDisplay('7')">7</button>
@@ -89,77 +108,66 @@
             <button class="number" onclick="appendToDisplay('1')">1</button>
             <button class="number" onclick="appendToDisplay('2')">2</button>
             <button class="number" onclick="appendToDisplay('3')">3</button>
-            <button class="equals" onclick="calculate()" rowspan="2">=</button>
+            <button class="equals" onclick="calculate()">=</button>
             
-            <button class="number" onclick="appendToDisplay('0')" colspan="2" style="grid-column: span 2;">0</button>
+            <button class="number" onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
             <button class="decimal" onclick="appendToDisplay('.')">.</button>
         </div>
     </div>
 
     <script>
         let display = document.getElementById('display');
-        let currentInput = '';
-        let operator = '';
-        let previousInput = '';
 
         function appendToDisplay(value) {
-            if (['+', '-', '*', '/'].includes(value)) {
-                if (currentInput !== '') {
-                    if (previousInput !== '' && operator !== '') {
-                        calculate();
-                    }
-                    previousInput = currentInput;
-                    operator = value;
-                    currentInput = '';
-                    display.value = previousInput + ' ' + value + ' ';
-                }
-            } else {
-                currentInput += value;
-                display.value = (previousInput && operator ? previousInput + ' ' + operator + ' ' : '') + currentInput;
-            }
-        }
-
-        function calculate() {
-            if (previousInput !== '' && currentInput !== '' && operator !== '') {
-                let result;
-                const prev = parseFloat(previousInput);
-                const current = parseFloat(currentInput);
-                
-                switch (operator) {
-                    case '+':
-                        result = prev + current;
-                        break;
-                    case '-':
-                        result = prev - current;
-                        break;
-                    case '*':
-                        result = prev * current;
-                        break;
-                    case '/':
-                        result = current !== 0 ? prev / current : 'Error';
-                        break;
-                    default:
-                        return;
-                }
-                
-                display.value = result;
-                currentInput = result.toString();
-                previousInput = '';
-                operator = '';
-            }
+            display.value += value;
         }
 
         function clearDisplay() {
             display.value = '';
-            currentInput = '';
-            previousInput = '';
-            operator = '';
         }
 
         function deleteLast() {
-            if (currentInput !== '') {
-                currentInput = currentInput.slice(0, -1);
-                display.value = (previousInput && operator ? previousInput + ' ' + operator + ' ' : '') + currentInput;
+            display.value = display.value.slice(0, -1);
+        }
+
+        function factorial(n) {
+            if (n < 0 || n % 1 !== 0) {
+                return 'Error'; // Factorial is defined for non-negative integers only
+            }
+            if (n === 0 || n === 1) {
+                return 1;
+            }
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        function calculate() {
+            let expression = display.value;
+            try {
+                // Replace user-friendly representations with JS Math equivalents
+                expression = expression.replace(/π/g, 'Math.PI');
+                expression = expression.replace(/e/g, 'Math.E');
+                expression = expression.replace(/√\(/g, 'Math.sqrt(');
+                expression = expression.replace(/sin\(/g, 'Math.sin(');
+                expression = expression.replace(/cos\(/g, 'Math.cos(');
+                expression = expression.replace(/tan\(/g, 'Math.tan(');
+                expression = expression.replace(/log\(/g, 'Math.log10(');
+                expression = expression.replace(/ln\(/g, 'Math.log(');
+                expression = expression.replace(/\^/g, '**');
+
+                // Handle factorial, e.g., 5! -> factorial(5)
+                expression = expression.replace(/(\d+\.?\d*)!/g, (match, number) => {
+                    return `factorial(${number})`;
+                });
+
+                // Evaluate the expression using Function constructor for safer evaluation
+                const result = new Function('return ' + expression)();
+                display.value = result;
+            } catch (error) {
+                display.value = 'Error';
             }
         }
 
@@ -168,9 +176,10 @@
             const key = event.key;
             if ('0123456789.'.includes(key)) {
                 appendToDisplay(key);
-            } else if ('+-*/'.includes(key)) {
+            } else if ('+-*/^()'.includes(key)) {
                 appendToDisplay(key);
             } else if (key === 'Enter' || key === '=') {
+                event.preventDefault(); // prevent form submission
                 calculate();
             } else if (key === 'Escape' || key === 'c' || key === 'C') {
                 clearDisplay();
