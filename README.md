@@ -14,7 +14,7 @@ A modern, responsive web application for managing your collection of single-page
 - **CRUD Operations**: Add, edit, and delete webapps with intuitive modals
 - **Import/Export**: Backup and share webapp collections in JSON or XML format
 - **Usage Tracking**: Monitor when webapps were last used and usage frequency
-- **Local Storage**: All data persisted locally in your browser with no reliance on the original HTML file
+- **IndexedDB Storage**: All data persisted locally using IndexedDB, supporting significantly more webapps and larger file sizes than localStorage
 - **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
 - **Modern UI**: Beautiful gradients, smooth animations, and professional styling
 
@@ -63,24 +63,25 @@ with a single file.
 
 ## Sample Webapps
 
-The `samples/` directory contains three example webapps to demonstrate the system:
+The `samples/` directory contains four example webapps to demonstrate the system:
 
 1. **Calculator** (`calculator.html`) - A functional calculator with keyboard support
 2. **Todo App** (`todo-app.html`) - A task management application with local storage
 3. **Color Picker** (`color-picker.html`) - A color selection tool with multiple format outputs
+4. **Slide Puzzle** (`slide-puzzle.html`) - A classic sliding tile puzzle game
 
 You can add these sample webapps to test the manager functionality.
 
 ## Technical Details
 
 ### Data Storage
-- All webapp metadata is stored in browser localStorage
+- All webapp metadata is stored in browser IndexedDB
 - HTML file contents are stored as text within the webapp data
 - No server required - everything runs client-side
 
 ### Browser Compatibility
 - Modern browsers with ES6+ support
-- localStorage support required
+- IndexedDB support required
 - File API support for HTML file uploads
 
 ## Customization
