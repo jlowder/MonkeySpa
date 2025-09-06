@@ -787,17 +787,182 @@ h1 img {
     </div>
 
     <script>
+class IDBHelper {
+    constructor(dbName, dbVersion, storeName) {
+        this.dbName = dbName;
+        this.dbVersion = dbVersion;
+        this.storeName = storeName;
+        this.db = null;
+    }
+
+    openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(this.storeName)) {
+                    db.createObjectStore(this.storeName, { keyPath: 'id' });
+                }
+            };
+
+            request.onsuccess = (event) => {
+                this.db = event.target.result;
+                resolve(this.db);
+            };
+
+            request.onerror = (event) => {
+                reject('Error opening IndexedDB: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    getTransaction(mode) {
+        return this.db.transaction(this.storeName, mode);
+    }
+
+    getAll() {
+        return new Promise((resolve, reject) => {
+            const transaction = this.getTransaction('readonly');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = (event) => {
+                reject('Error getting all items: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    get(key) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.getTransaction('readonly');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.get(key);
+
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = (event) => {
+                reject('Error getting item: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    add(item) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.getTransaction('readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.add(item);
+
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = (event) => {
+                reject('Error adding item: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    put(item) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.getTransaction('readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.put(item);
+
+            request.onsuccess = () => {
+                resolve(request.result);
+            };
+
+            request.onerror = (event) => {
+                reject('Error putting item: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    delete(key) {
+        return new Promise((resolve, reject) => {
+            const transaction = this.getTransaction('readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.delete(key);
+
+            request.onsuccess = () => {
+                resolve();
+            };
+
+            request.onerror = (event) => {
+                reject('Error deleting item: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    clear() {
+        return new Promise((resolve, reject) => {
+            const transaction = this.getTransaction('readwrite');
+            const store = transaction.objectStore(this.storeName);
+            const request = store.clear();
+
+            request.onsuccess = () => {
+                resolve();
+            };
+
+            request.onerror = (event) => {
+                reject('Error clearing store: ' + event.target.errorCode);
+            };
+        });
+    }
+
+    bulkAdd(items) {
+        return new Promise((resolve, reject) => {
+            if (!items || items.length === 0) {
+                resolve();
+                return;
+            }
+            const transaction = this.getTransaction('readwrite');
+            const store = transaction.objectStore(this.storeName);
+
+            let completed = 0;
+            const total = items.length;
+
+            items.forEach(item => {
+                const request = store.add(item);
+                request.onsuccess = () => {
+                    completed++;
+                    if (completed === total) {
+                        resolve();
+                    }
+                };
+            });
+
+            transaction.oncomplete = () => {
+                // This is a more reliable way to know the transaction is done
+            };
+
+            transaction.onerror = (event) => {
+                reject('Error in bulk add transaction: ' + event.target.errorCode);
+            };
+        });
+    }
+}
+
 class WebappManager {
     constructor() {
-        this.webapps = this.loadWebapps();
+        this.db = new IDBHelper('MonkeySpaDB', 1, 'webapps');
+        this.webapps = [];
         this.currentEditId = null;
         this.pendingScreenshots = new Map(); // Track pending screenshot operations
         this.init();
     }
 
-    init() {
+    async init() {
+        await this.db.openDB();
         this.bindEvents();
-        this.renderWebapps();
+        await this.loadWebapps();
     }
 
     bindEvents() {
@@ -840,16 +1005,10 @@ class WebappManager {
         });
     }
 
-    loadWebapps() {
-        const stored = localStorage.getItem('webapps');
-        const webapps = stored ? JSON.parse(stored) : [];
-        console.log('LOAD: Loaded webapps from localStorage:', webapps.map(app => ({id: app.id, name: app.name, screenshotType: app.screenshot?.type})));
-        return webapps;
-    }
-
-    saveWebapps() {
-        console.log('Saving webapps to localStorage:', this.webapps.map(app => ({id: app.id, name: app.name, screenshotType: app.screenshot?.type})));
-        localStorage.setItem('webapps', JSON.stringify(this.webapps));
+    async loadWebapps() {
+        this.webapps = await this.db.getAll();
+        console.log('LOAD: Loaded webapps from IndexedDB:', this.webapps.map(app => ({id: app.id, name: app.name, screenshotType: app.screenshot?.type})));
+        this.renderWebapps();
     }
 
     generateId() {
@@ -1054,29 +1213,30 @@ class WebappManager {
                 importedData = this.parseXML(content);
             }
 
-            // Validate imported data
             if (!this.validateImportData(importedData)) {
                 this.showNotification('Invalid file format. Please select a valid Monkey Spa export file.', 'error');
                 return;
             }
 
-            // Process import based on mode
+            let newCount = 0;
             if (importMode === 'replace') {
-                this.webapps = importedData.webapps;
-            } else {
-                // Merge mode - avoid duplicates by ID
+                await this.db.clear();
+                await this.db.bulkAdd(importedData.webapps);
+                newCount = importedData.webapps.length;
+            } else { // Merge mode
                 const existingIds = new Set(this.webapps.map(app => app.id));
                 const newWebapps = importedData.webapps.filter(app => !existingIds.has(app.id));
-                this.webapps = [...this.webapps, ...newWebapps];
+                if (newWebapps.length > 0) {
+                    await this.db.bulkAdd(newWebapps);
+                }
+                newCount = newWebapps.length;
             }
 
-            this.saveWebapps();
-            this.renderWebapps();
+            await this.loadWebapps(); // Reload from DB and render
             this.closeImportExportModal();
             
-            const count = importedData.webapps.length;
-            const mode = importMode === 'replace' ? 'replaced' : 'merged';
-            this.showNotification(`Successfully ${mode} ${count} webapp(s)!`, 'success');
+            const modeText = importMode === 'replace' ? 're-imported' : 'merged';
+            this.showNotification(`Successfully ${modeText} ${newCount} webapp(s)!`, 'success');
             
         } catch (error) {
             console.error('Import error:', error);
@@ -1114,11 +1274,9 @@ class WebappManager {
                 exportedFrom: webappEl.querySelector('exportedFrom')?.textContent
             };
 
-            // Parse tags
             const tagElements = webappEl.querySelectorAll('tags tag');
             webapp.tags = Array.from(tagElements).map(tag => tag.textContent);
 
-            // Parse screenshot
             const screenshotEl = webappEl.querySelector('screenshot');
             if (screenshotEl) {
                 webapp.screenshot = {
@@ -1128,7 +1286,6 @@ class WebappManager {
                     preview: screenshotEl.querySelector('preview')?.textContent
                 };
             }
-
             exportData.webapps.push(webapp);
         });
 
@@ -1147,21 +1304,14 @@ class WebappManager {
     }
 
     showNotification(message, type = 'info') {
-        // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.innerHTML = `
             <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
             <span>${message}</span>
         `;
-        
-        // Add to page
         document.body.appendChild(notification);
-        
-        // Show notification
         setTimeout(() => notification.classList.add('show'), 100);
-        
-        // Remove after 4 seconds
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => document.body.removeChild(notification), 300);
@@ -1174,16 +1324,15 @@ class WebappManager {
         const name = document.getElementById('appName').value.trim();
         const description = document.getElementById('appDescription').value.trim();
         const category = document.getElementById('appCategory').value;
-        const tags = document.getElementById('appTags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+        const tags = document.getElementById('appTags').value.split(',').map(tag => tag.trim()).filter(Boolean);
         const fileInput = document.getElementById('appFile');
         const screenshotInput = document.getElementById('appScreenshot');
 
         if (!name) {
-            alert('Please enter a webapp name');
+            this.showNotification('Please enter a webapp name', 'error');
             return;
         }
 
-        // Show loading state
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
@@ -1191,119 +1340,85 @@ class WebappManager {
 
         try {
             if (this.currentEditId) {
-                // Editing existing webapp - use dedicated method
                 await this.updateExistingWebapp(this.currentEditId, name, description, category, tags, fileInput, screenshotInput);
             } else {
-                // Adding new webapp - use dedicated method
                 await this.addNewWebapp(name, description, category, tags, fileInput, screenshotInput);
             }
         } catch (error) {
             console.error('Error processing webapp:', error);
-            alert('An error occurred while processing the webapp. Please try again.');
+            this.showNotification('An error occurred. Please try again.', 'error');
         } finally {
-            // Reset button state
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
         }
     }
 
     async updateExistingWebapp(webappId, name, description, category, tags, fileInput, screenshotInput) {
-        console.log(`UPDATE: Starting update for webapp ${webappId}`);
-        
-        // Create a completely new webapp object to avoid any reference issues
-        const originalWebapp = this.webapps.find(app => app.id === webappId);
-        if (!originalWebapp) {
-            console.error('UPDATE: Webapp not found:', webappId);
+        const webappToUpdate = await this.db.get(webappId);
+        if (!webappToUpdate) {
+            console.error('Cannot find webapp to update:', webappId);
             return;
         }
 
-        console.log('UPDATE: Original webapp:', originalWebapp.name, originalWebapp.screenshot?.type);
+        webappToUpdate.name = name;
+        webappToUpdate.description = description;
+        webappToUpdate.category = category;
+        webappToUpdate.tags = tags;
+        webappToUpdate.lastModified = new Date().toISOString();
 
-        // Deep clone the original webapp to avoid reference issues
-        const updatedWebapp = JSON.parse(JSON.stringify(originalWebapp));
-        updatedWebapp.name = name;
-        updatedWebapp.description = description;
-        updatedWebapp.category = category;
-        updatedWebapp.tags = [...tags]; // Create new array
-        updatedWebapp.lastModified = new Date().toISOString();
+        const hasNewFile = fileInput.files[0];
+        const hasNewScreenshot = screenshotInput.files[0];
 
-        console.log('UPDATE: Updated webapp object:', updatedWebapp.name, updatedWebapp.screenshot?.type);
-
-        // Replace the webapp in the array using map to avoid index issues
-        this.webapps = this.webapps.map(app => {
-            if (app.id === webappId) {
-                return updatedWebapp;
-            }
-            return app;
-        });
-
-        // Handle custom screenshot upload
-        if (screenshotInput.files[0]) {
-            console.log('UPDATE: Custom screenshot provided');
-            const customScreenshot = await this.processCustomScreenshot(screenshotInput.files[0]);
-            this.webapps = this.webapps.map(app => {
-                if (app.id === webappId) {
-                    return { ...app, screenshot: customScreenshot };
-                }
-                return app;
-            });
-        }
-
-        // Handle file update ONLY if user actually selected a new file during this edit session
-        console.log('UPDATE: Checking file input - files:', fileInput.files.length, 'value:', fileInput.value);
-        if (fileInput.files[0] && fileInput.value !== '') {
-            const file = fileInput.files[0];
-            const fileContent = await this.readFileContent(file);
-            
-            // Cancel any pending screenshot for this webapp
+        if (hasNewScreenshot) {
             if (this.pendingScreenshots.has(webappId)) {
                 this.pendingScreenshots.get(webappId).cancelled = true;
+                this.pendingScreenshots.delete(webappId);
             }
-            
-            // Update the webapp using map to avoid index corruption
-            this.webapps = this.webapps.map(app => {
-                if (app.id === webappId) {
-                    return {
-                        ...app,
-                        fileContent,
-                        fileName: file.name,
-                        screenshot: { type: 'loading' }
-                    };
-                }
-                return app;
-            });
-            
-            this.saveWebapps();
-            this.renderWebapps();
-            
-            // Create new cancellation token
-            const cancellationToken = { cancelled: false };
-            this.pendingScreenshots.set(webappId, cancellationToken);
-            
-            // Generate new screenshot
-            const screenshot = await this.generateScreenshot(fileContent);
-            if (!cancellationToken.cancelled) {
-                // Use map to avoid index issues
-                this.webapps = this.webapps.map(app => {
-                    if (app.id === webappId) {
-                        return { ...app, screenshot };
-                    }
-                    return app;
-                });
-            }
-            this.pendingScreenshots.delete(webappId);
+            webappToUpdate.screenshot = await this.processCustomScreenshot(screenshotInput.files[0]);
         }
 
-        const finalWebapp = this.webapps.find(app => app.id === webappId);
-        console.log('UPDATE: Final webapp state:', finalWebapp?.name, finalWebapp?.screenshot?.type);
-        this.saveWebapps();
-        this.renderWebapps();
+        if (hasNewFile) {
+            const file = fileInput.files[0];
+            webappToUpdate.fileContent = await this.readFileContent(file);
+            webappToUpdate.fileName = file.name;
+            
+            if (!hasNewScreenshot) {
+                webappToUpdate.screenshot = { type: 'loading' };
+                await this.db.put(webappToUpdate);
+                await this.loadWebapps();
+                this.closeModals();
+
+                if (this.pendingScreenshots.has(webappId)) {
+                    this.pendingScreenshots.get(webappId).cancelled = true;
+                }
+                const cancellationToken = { cancelled: false };
+                this.pendingScreenshots.set(webappId, cancellationToken);
+
+                this.generateScreenshot(webappToUpdate.fileContent).then(async (newScreenshot) => {
+                    if (cancellationToken.cancelled) {
+                        this.pendingScreenshots.delete(webappId);
+                        return;
+                    }
+                    this.pendingScreenshots.delete(webappId);
+                    const finalWebapp = await this.db.get(webappId);
+                    if (finalWebapp && finalWebapp.screenshot.type === 'loading') {
+                        finalWebapp.screenshot = newScreenshot;
+                        await this.db.put(finalWebapp);
+                        await this.loadWebapps();
+                    }
+                });
+                return;
+            }
+        }
+
+        await this.db.put(webappToUpdate);
+        await this.loadWebapps();
         this.closeModals();
     }
 
     async addNewWebapp(name, description, category, tags, fileInput, screenshotInput) {
         if (!fileInput.files[0]) {
-            alert('Please select an HTML file');
+            this.showNotification('Please select an HTML file', 'error');
             return;
         }
 
@@ -1312,92 +1427,49 @@ class WebappManager {
         const webappId = this.generateId();
 
         const newWebapp = {
-            id: webappId,
-            name,
-            description,
-            category,
-            tags,
-            fileName: file.name,
-            fileContent,
-            screenshot: { type: 'loading' },
+            id: webappId, name, description, category, tags,
+            fileName: file.name, fileContent,
             dateAdded: new Date().toISOString(),
             lastUsed: null,
             lastModified: new Date().toISOString(),
             usageCount: 0
         };
 
-        this.webapps.push(newWebapp);
-        this.saveWebapps();
-        this.renderWebapps();
-        this.closeModals();
-
-        // Handle custom screenshot if provided
         if (screenshotInput.files[0]) {
-            console.log('NEW: Custom screenshot provided');
-            const customScreenshot = await this.processCustomScreenshot(screenshotInput.files[0]);
-            this.webapps = this.webapps.map(app => {
-                if (app.id === webappId) {
-                    return { ...app, screenshot: customScreenshot };
+            newWebapp.screenshot = await this.processCustomScreenshot(screenshotInput.files[0]);
+            await this.db.add(newWebapp);
+            await this.loadWebapps();
+            this.closeModals();
+        } else {
+            newWebapp.screenshot = { type: 'loading' };
+            await this.db.add(newWebapp);
+            await this.loadWebapps();
+            this.closeModals();
+
+            const cancellationToken = { cancelled: false };
+            this.pendingScreenshots.set(webappId, cancellationToken);
+
+            this.generateScreenshot(fileContent).then(async screenshot => {
+                if (cancellationToken.cancelled) {
+                    this.pendingScreenshots.delete(webappId);
+                    return;
                 }
-                return app;
-            });
-            this.saveWebapps();
-            this.renderWebapps();
-            return; // Skip auto-generated screenshot
-        }
+                this.pendingScreenshots.delete(webappId);
 
-        // Cancel any existing screenshot generation for this webapp
-        if (this.pendingScreenshots.has(webappId)) {
-            console.log(`ASYNC: Cancelling existing screenshot generation for ${webappId}`);
-            this.pendingScreenshots.get(webappId).cancelled = true;
-        }
-
-        // Create cancellation token
-        const cancellationToken = { cancelled: false };
-        this.pendingScreenshots.set(webappId, cancellationToken);
-
-        // Generate screenshot in background using ID lookup
-        this.generateScreenshot(fileContent).then(screenshot => {
-            // Check if this operation was cancelled
-            if (cancellationToken.cancelled) {
-                console.log(`ASYNC: Screenshot generation cancelled for webapp ${webappId}`);
-                return;
-            }
-
-            console.log(`ASYNC: Setting screenshot for webapp ${webappId}`);
-            console.log('ASYNC: Current webapps state:', this.webapps.map(app => ({id: app.id, name: app.name})));
-            
-            // Use map to create a new array with the updated webapp
-            this.webapps = this.webapps.map(app => {
-                if (app.id === webappId) {
-                    console.log(`ASYNC: Found target webapp: ${app.name} (ID: ${app.id}), updating screenshot`);
-                    console.log('ASYNC: Screenshot being applied to:', app.name);
-                    return { ...app, screenshot };
+                const appToUpdate = await this.db.get(webappId);
+                if (appToUpdate && appToUpdate.screenshot.type === 'loading') {
+                    appToUpdate.screenshot = screenshot;
+                    await this.db.put(appToUpdate);
+                    await this.loadWebapps();
                 }
-                return app;
             });
-            
-            this.saveWebapps();
-            this.renderWebapps();
-            
-            // Clean up cancellation token
-            this.pendingScreenshots.delete(webappId);
-        }).catch(error => {
-            console.error('Screenshot generation failed:', error);
-            this.pendingScreenshots.delete(webappId);
-        });
+        }
     }
 
     async processCustomScreenshot(imageFile) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                resolve({
-                    type: 'image',
-                    url: e.target.result,
-                    title: 'Custom Screenshot'
-                });
-            };
+            reader.onload = (e) => resolve({ type: 'image', url: e.target.result, title: 'Custom Screenshot' });
             reader.onerror = reject;
             reader.readAsDataURL(imageFile);
         });
@@ -1414,71 +1486,39 @@ class WebappManager {
 
     async generateScreenshot(htmlContent) {
         return new Promise((resolve) => {
-            // Create a hidden iframe to render the HTML content
             const iframe = document.createElement('iframe');
             iframe.style.position = 'absolute';
             iframe.style.left = '-9999px';
             iframe.style.width = '1024px';
             iframe.style.height = '768px';
             iframe.style.border = 'none';
-            
             document.body.appendChild(iframe);
             
-            // Write the HTML content to the iframe
-            iframe.contentDocument.open();
-            iframe.contentDocument.write(htmlContent);
-            iframe.contentDocument.close();
-            
-            // Wait for content to load, then capture screenshot
             iframe.onload = () => {
-                // Increased delay to ensure full page rendering (CSS, images, etc.)
                 setTimeout(() => {
                     html2canvas(iframe.contentDocument.documentElement, {
-                        width: 1024,
-                        height: 768,
-                        scale: 0.5,
-                        useCORS: true,
-                        allowTaint: true,
-                        backgroundColor: null,
-                        foreignObjectRendering: false,
-                        logging: false,
-                        removeContainer: true,
-                        scrollX: 0,
-                        scrollY: 0,
-                        windowWidth: 1024,
-                        windowHeight: 768
+                        width: 1024, height: 768, scale: 0.5, useCORS: true, allowTaint: true,
+                        backgroundColor: null, foreignObjectRendering: false, logging: false,
+                        removeContainer: true, scrollX: 0, scrollY: 0, windowWidth: 1024, windowHeight: 768
                     }).then(canvas => {
-                        const screenshot = canvas.toDataURL('image/png');
                         document.body.removeChild(iframe);
-                        
-                        resolve({
-                            type: 'image',
-                            url: screenshot,
-                            title: this.extractTitle(htmlContent)
-                        });
+                        resolve({ type: 'image', url: canvas.toDataURL('image/png'), title: this.extractTitle(htmlContent) });
                     }).catch(error => {
                         console.warn('Screenshot generation failed:', error);
                         document.body.removeChild(iframe);
-                        
-                        // Fallback to text preview
-                        resolve({
-                            type: 'text',
-                            title: this.extractTitle(htmlContent),
-                            preview: htmlContent.substring(0, 200) + '...'
-                        });
+                        resolve({ type: 'text', title: this.extractTitle(htmlContent), preview: htmlContent.substring(0, 200) + '...' });
                     });
-                }, 2000); // Wait 2 seconds for content to render
+                }, 2000);
             };
             
-            // Fallback if iframe fails to load
             iframe.onerror = () => {
                 document.body.removeChild(iframe);
-                resolve({
-                    type: 'text',
-                    title: this.extractTitle(htmlContent),
-                    preview: htmlContent.substring(0, 200) + '...'
-                });
+                resolve({ type: 'text', title: this.extractTitle(htmlContent), preview: htmlContent.substring(0, 200) + '...' });
             };
+
+            iframe.contentDocument.open();
+            iframe.contentDocument.write(htmlContent);
+            iframe.contentDocument.close();
         });
     }
 
@@ -1488,31 +1528,24 @@ class WebappManager {
         return doc.querySelector('title')?.textContent || 'Untitled Webapp';
     }
 
-    launchWebapp(webapp) {
-        // Update usage statistics using map to avoid reference issues
-        this.webapps = this.webapps.map(app => {
-            if (app.id === webapp.id) {
-                return {
-                    ...app,
-                    lastUsed: new Date().toISOString(),
-                    usageCount: (app.usageCount || 0) + 1
-                };
-            }
-            return app;
-        });
-        
-        this.saveWebapps();
-        this.renderWebapps(); // Re-render to show updated "last used" time
+    async launchWebapp(webapp) {
+        const updatedWebapp = {
+            ...webapp,
+            lastUsed: new Date().toISOString(),
+            usageCount: (webapp.usageCount || 0) + 1
+        };
 
-        // Create a new window/tab with the webapp content
+        await this.db.put(updatedWebapp);
+
+        this.webapps = this.webapps.map(app => app.id === webapp.id ? updatedWebapp : app);
+        this.renderWebapps();
+
         const newWindow = window.open('', '_blank');
         newWindow.document.write(webapp.fileContent);
         newWindow.document.close();
     }
 
     editWebapp(webapp) {
-        console.log('EDIT: Opening edit modal for webapp:', webapp.id, webapp.name);
-        console.log('EDIT: Webapp screenshot type:', webapp.screenshot?.type);
         this.openModal(webapp);
     }
 
@@ -1521,11 +1554,10 @@ class WebappManager {
         document.getElementById('deleteModal').style.display = 'block';
     }
 
-    confirmDelete() {
+    async confirmDelete() {
         if (this.webappToDelete) {
-            this.webapps = this.webapps.filter(app => app.id !== this.webappToDelete.id);
-            this.saveWebapps();
-            this.renderWebapps();
+            await this.db.delete(this.webappToDelete.id);
+            await this.loadWebapps();
             this.webappToDelete = null;
         }
         this.closeModals();
