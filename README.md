@@ -31,7 +31,7 @@ A modern, responsive web application for managing your collection of single-page
 ### Adding Webapps
 - Click the "Add Webapp" button
 - Enter a name and description
-- Select a category (Productivity, Games, Utilities, Entertainment, Other)
+- Select a category (Dev Tools, Research, Productivity, Utilities, Fun, Other)
 - Add comma-separated tags for better organization
 - Upload your HTML file
 - Optionally upload a custom screenshot (otherwise one will be auto-generated)
