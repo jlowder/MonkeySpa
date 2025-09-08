@@ -1008,7 +1008,7 @@ class WebappManager {
     async loadWebapps() {
         this.webapps = await this.db.getAll();
         console.log('LOAD: Loaded webapps from IndexedDB:', this.webapps.map(app => ({id: app.id, name: app.name, screenshotType: app.screenshot?.type})));
-        this.renderWebapps();
+        this.filterWebapps();
     }
 
     generateId() {
@@ -1538,7 +1538,7 @@ class WebappManager {
         await this.db.put(updatedWebapp);
 
         this.webapps = this.webapps.map(app => app.id === webapp.id ? updatedWebapp : app);
-        this.renderWebapps();
+        this.filterWebapps();
 
         const newWindow = window.open('', '_blank');
         newWindow.document.write(webapp.fileContent);
