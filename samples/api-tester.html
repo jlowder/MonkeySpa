@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-size: 0.9rem;
+        }
+
+        .method-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .method-selector label {
+            margin-bottom: 0;
+        }
+
+        .method-selector select {
+            width: 150px;
+        }
+
+        .url-input {
+            flex-grow: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .response-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .response-container {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow: auto;
+            max-height: 500px;
+        }
+
+        .response-container pre {
+            color: #e0e0e0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .response-container pre span.key { color: #9cdcfe; }
+        .response-container pre span.string { color: #ce9178; }
+        .response-container pre span.number { color: #b5cea8; }
+        .response-container pre span.boolean { color: #569cd6; }
+        .response-container pre span.null { color: #569cd6; }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .success {
+            color: #51cf66;
+        }
+
+        .loading {
+            color: #fcc419;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        .status-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .time-taken {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .empty-response {
+            color: #888;
+            font-style: italic;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .request-info {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .request-method {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: white;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .method-get { background: #51cf66; }
+        .method-post { background: #fcc419; color: #333; }
+        .method-put { background: #7950f2; }
+        .method-delete { background: #fa5252; }
+        .method-patch { background: #12c2e9; }
+
+        .request-url {
+            flex-grow: 1;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #333;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .request-url::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .request-url::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 2px;
+        }
+
+        .copy-btn {
+            margin-top: 10px;
+            width: auto;
+            padding: 8px 16px;
+            background: #6c757d;
+        }
+
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+
+        .response-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .cors-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cors-warning svg {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            color: #856404;
+        }
+
+        .cors-warning-text {
+            color: #856404;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .cors-warning a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        .cors-warning a:hover {
+            text-decoration: underline;
+        }
+
+        .request-history {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .request-history h3 {
+            color: #333;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .history-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-item:hover {
+            background: #e9ecef;
+        }
+
+        .history-item .method {
+            font-weight: 600;
+            min-width: 60px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: white;
+            text-align: center;
+        }
+
+        .history-item .url {
+            flex-grow: 1;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .clear-history-btn {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            background: #6c757d;
+        }
+
+        .clear-history-btn:hover {
+            background: #5a6268;
+        }
+
+        .advanced-settings {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .advanced-settings h3 {
+            color: #333;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .advanced-settings .input-group {
+            margin-bottom: 15px;
+        }
+
+        .advanced-settings .input-group:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Tester</h1>
+        
+        <div class="card" role="main">
+            <div class="cors-warning" role="alert" aria-label="CORS warning">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M11.046 1.046a2 2 0 0 0-2.828 0L4.5 5.657a2 2 0 0 0 0 2.828l6.718 6.718a2 2 0 0 0 2.828 0l6.718-6.718a2 2 0 0 0 0-2.828L13.864 1.046a2 2 0 0 0-2.818 0zM10 15v4a1 1 0 0 0 2 0v-4a1 1 0 1 0-2 0zm1-6a1 1 0 0 0-1 1v4a1 1 0 1 0 2 0V9a1 1 0 0 0-1-1z"/>
+                    <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20z" fill-opacity="0.1"/>
+                </svg>
+                <div class="cors-warning-text">
+                    <strong>CORS Warning:</strong> Cross-origin requests may be blocked by browser security policies. 
+                    For testing cross-origin APIs, use a <a href="https://www.google.com/search?q=cors+proxy" target="_blank" rel="noopener noreferrer">CORS proxy</a>.
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="url">API Endpoint URL <span aria-hidden="true">*</span></label>
+                <input type="text" id="url" placeholder="https://api.example.com/endpoint" value="https://jsonplaceholder.typicode.com/posts/1" aria-required="true" aria-describedby="url-hint">
+                <span id="url-hint" class="visually-hidden">Enter the complete URL including protocol (http:// or https://)</span>
+            </div>
+
+            <div class="method-selector">
+                <div class="url-input">
+                    <label for="method">HTTP Method</label>
+                    <select id="method" aria-label="Select HTTP method">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="PATCH">PATCH</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="request-info" id="requestInfo" style="display: none;" role="status" aria-live="polite">
+                <span class="request-method" id="requestMethod"></span>
+                <span class="request-url" id="requestUrl"></span>
+            </div>
+
+            <button id="sendRequest" aria-label="Send HTTP request">Send Request</button>
+
+            <div class="advanced-settings" id="advancedSettings">
+                <h3>Advanced Settings</h3>
+                <div class="input-group">
+                    <label for="contentType">Content-Type Header</label>
+                    <input type="text" id="contentType" value="application/json" placeholder="application/json" aria-describedby="contentType-hint">
+                    <span id="contentType-hint" class="visually-hidden">Default: application/json. Enter custom content type header value.</span>
+                </div>
+                <div class="input-group">
+                    <label for="postBody">Request Body (for POST/PUT/PATCH)</label>
+                    <textarea id="postBody" placeholder='{"key": "value", "another": "data"}' aria-describedby="postBody-hint" aria-label="Request body for POST, PUT, and PATCH requests"></textarea>
+                    <span id="postBody-hint" class="visually-hidden">Optional JSON body for POST, PUT, and PATCH requests</span>
+                </div>
+            </div>
+
+            <div class="response-section">
+                <h2>Response</h2>
+                <div class="response-meta">
+                    <span id="statusCode">No response yet</span>
+                    <span id="timeTaken"></span>
+                </div>
+                <div class="response-container" role="region" aria-label="Response content">
+                    <pre id="responseContent" aria-live="polite"><span class="empty-response">Response will appear here...</span></pre>
+                </div>
+                <button id="copyResponse" class="copy-btn" style="display: none;" aria-label="Copy response to clipboard">Copy Response</button>
+            </div>
+
+            <div class="request-history" id="requestHistorySection" style="display: none;">
+                <h3>Recent Requests</h3>
+                <ul class="history-list" id="historyList" role="list" aria-label="Request history"></ul>
+                <button id="clearHistory" class="clear-history-btn" aria-label="Clear request history">Clear History</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('url');
+        const methodSelect = document.getElementById('method');
+        const sendButton = document.getElementById('sendRequest');
+        const copyButton = document.getElementById('copyResponse');
+        const responseContent = document.getElementById('responseContent');
+        const requestInfo = document.getElementById('requestInfo');
+        const requestMethod = document.getElementById('requestMethod');
+        const requestUrl = document.getElementById('requestUrl');
+        const statusCode = document.getElementById('statusCode');
+        const timeTaken = document.getElementById('timeTaken');
+        const contentTypeInput = document.getElementById('contentType');
+        const postBodyInput = document.getElementById('postBody');
+        const requestHistorySection = document.getElementById('requestHistorySection');
+        const historyList = document.getElementById('historyList');
+        const clearHistoryButton = document.getElementById('clearHistory');
+
+        const REQUEST_TIMEOUT = 30000;
+        const MAX_HISTORY = 10;
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatJSON(json) {
+            try {
+                const data = typeof json === 'string' ? JSON.parse(json) : json;
+                const formatted = JSON.stringify(data, null, 2);
+                const escaped = escapeHtml(formatted);
+                
+                return escaped.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            } catch (e) {
+                return escapeHtml(String(json));
+            }
+        }
+
+        function getMethodClass(method) {
+            const methods = {
+                'GET': 'method-get',
+                'POST': 'method-post',
+                'PUT': 'method-put',
+                'DELETE': 'method-delete',
+                'PATCH': 'method-patch'
+            };
+            return methods[method] || 'method-get';
+        }
+
+        function displayRequestInfo(method, url) {
+            requestMethod.textContent = method;
+            requestMethod.className = 'request-method ' + getMethodClass(method);
+            requestUrl.textContent = url;
+            requestInfo.style.display = 'flex';
+        }
+
+        function displayStatus(code, time) {
+            const statusTexts = {
+                200: 'OK', 201: 'Created', 204: 'No Content',
+                400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden',
+                404: 'Not Found', 500: 'Internal Server Error'
+            };
+            const statusText = statusTexts[code] || '';
+            statusCode.textContent = 'Status: ' + code + ' ' + statusText;
+            statusCode.className = code >= 200 && code < 400 ? 'success' : 'error';
+            timeTaken.textContent = 'Time: ' + time + 'ms';
+        }
+
+        function displayError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.textContent = 'Error: ' + message;
+            errorDiv.className = 'error';
+            responseContent.textContent = '';
+            responseContent.appendChild(errorDiv);
+        }
+
+        function displayEmpty() {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.textContent = 'Response will appear here...';
+            emptyDiv.className = 'empty-response';
+            responseContent.textContent = '';
+            responseContent.appendChild(emptyDiv);
+        }
+
+        function displayLoading() {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.textContent = 'Sending request...';
+            loadingDiv.className = 'loading';
+            responseContent.textContent = '';
+            responseContent.appendChild(loadingDiv);
+        }
+
+        function displayResponseText(text) {
+            responseContent.textContent = text;
+        }
+
+        copyButton.addEventListener('click', async () => {
+            const text = responseContent.innerText;
+            if (!text || text.includes('empty-response')) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Copied!';
+                copyButton.setAttribute('aria-label', 'Response copied to clipboard');
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                    copyButton.setAttribute('aria-label', 'Copy response to clipboard');
+                }, 2000);
+            } catch (e) {
+                displayError('Failed to copy to clipboard');
+            }
+        });
+
+        function saveToHistory(method, url) {
+            let history = [];
+            try {
+                const stored = localStorage.getItem('apiTesterHistory');
+                if (stored) {
+                    history = JSON.parse(stored);
+                }
+            } catch (e) {}
+
+            history = history.filter(item => !(item.method === method && item.url === url));
+            history.unshift({ method, url, timestamp: Date.now() });
+            history = history.slice(0, MAX_HISTORY);
+
+            try {
+                localStorage.setItem('apiTesterHistory', JSON.stringify(history));
+            } catch (e) {}
+
+            renderHistory();
+        }
+
+        function renderHistory() {
+            let history = [];
+            try {
+                const stored = localStorage.getItem('apiTesterHistory');
+                if (stored) {
+                    history = JSON.parse(stored);
+                }
+            } catch (e) {}
+
+            if (history.length === 0) {
+                requestHistorySection.style.display = 'none';
+                return;
+            }
+
+            requestHistorySection.style.display = 'block';
+            historyList.innerHTML = '';
+
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.setAttribute('role', 'button');
+                li.setAttribute('tabindex', '0');
+                li.setAttribute('aria-label', 'Load ' + item.method + ' request to ' + item.url);
+
+                const methodSpan = document.createElement('span');
+                methodSpan.className = 'method ' + getMethodClass(item.method);
+                methodSpan.textContent = item.method;
+
+                const urlSpan = document.createElement('span');
+                urlSpan.className = 'url';
+                urlSpan.textContent = item.url;
+                urlSpan.setAttribute('title', item.url);
+
+                li.appendChild(methodSpan);
+                li.appendChild(urlSpan);
+                historyList.appendChild(li);
+
+                li.addEventListener('click', () => {
+                    loadFromHistory(item.method, item.url);
+                });
+
+                li.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        loadFromHistory(item.method, item.url);
+                    }
+                });
+            });
+        }
+
+        function loadFromHistory(method, url) {
+            methodSelect.value = method;
+            urlInput.value = url;
+            urlInput.focus();
+        }
+
+        clearHistoryButton.addEventListener('click', () => {
+            try {
+                localStorage.removeItem('apiTesterHistory');
+                renderHistory();
+            } catch (e) {}
+        });
+
+        async function sendRequest() {
+            const url = urlInput.value.trim();
+            const method = methodSelect.value;
+            const contentType = contentTypeInput.value.trim() || 'application/json';
+            const postBody = postBodyInput.value.trim();
+
+            if (!url) {
+                displayError('Please enter a valid URL');
+                urlInput.focus();
+                return;
+            }
+
+            if (url.length > 2048) {
+                displayError('URL is too long. Please enter a shorter URL.');
+                urlInput.focus();
+                return;
+            }
+
+            try {
+                new URL(url);
+            } catch (e) {
+                displayError('Invalid URL format. Please enter a valid URL with protocol.');
+                urlInput.focus();
+                return;
+            }
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
+            sendButton.setAttribute('aria-busy', 'true');
+            copyButton.style.display = 'none';
+            displayRequestInfo(method, url);
+            displayLoading();
+            statusCode.textContent = 'Fetching...';
+            timeTaken.textContent = '';
+
+            const startTime = Date.now();
+            const abortController = new AbortController();
+            const timeoutId = setTimeout(() => {
+                abortController.abort();
+            }, REQUEST_TIMEOUT);
+
+            try {
+                const headers = { 'Content-Type': contentType };
+                let body = undefined;
+
+                if (postBody && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+                    body = postBody;
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: body !== undefined ? headers : undefined,
+                    body: body,
+                    signal: abortController.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                const timeTakenMs = Date.now() - startTime;
+                displayStatus(response.status, timeTakenMs);
+
+                const contentTypeHeader = response.headers.get('content-type');
+                let responseBody;
+
+                if (contentTypeHeader && contentTypeHeader.includes('application/json')) {
+                    const jsonData = await response.json();
+                    displayEmpty();
+                    const formatted = formatJSON(jsonData);
+                    responseContent.innerHTML = formatted;
+                } else {
+                    const textData = await response.text();
+                    displayResponseText(escapeHtml(textData));
+                }
+
+                copyButton.style.display = 'inline-block';
+                copyButton.focus();
+
+                saveToHistory(method, url);
+
+            } catch (error) {
+                clearTimeout(timeoutId);
+                const timeTakenMs = Date.now() - startTime;
+
+                if (error.name === 'AbortError') {
+                    displayError('Request timed out after 30 seconds');
+                    statusCode.textContent = 'Error: Timeout';
+                } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    displayError('Network Error - Cross-origin request blocked by CORS policy');
+                    statusCode.textContent = 'Error: Network';
+                } else {
+                    displayError('Request failed - ' + error.message);
+                    statusCode.textContent = 'Error: ' + error.name;
+                }
+
+                statusCode.className = 'error';
+                timeTaken.textContent = 'Time: ' + timeTakenMs + 'ms';
+            }
+
+            sendButton.disabled = false;
+            sendButton.textContent = 'Send Request';
+            sendButton.setAttribute('aria-busy', 'false');
+        }
+
+        sendButton.addEventListener('click', sendRequest);
+
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendRequest();
+            }
+        });
+
+        urlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                urlInput.value = '';
+                urlInput.focus();
+                displayEmpty();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            renderHistory();
+            urlInput.focus();
+        });
+    </script>
+</body>
+</html>
