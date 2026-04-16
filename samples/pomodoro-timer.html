@@ -472,16 +472,24 @@
                 this.updateControls();
                 this.updateTimerState();
                 
+                const startTime = Date.now();
+                const initialTimeLeft = this.timeLeft;
+
                 this.timerId = setInterval(() => {
-                    this.timeLeft--;
-                    this.updateDisplay();
-                    this.updateProgress();
+                    const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                    this.timeLeft = initialTimeLeft - elapsedSeconds;
                     
                     if (this.timeLeft <= 0) {
+                        this.timeLeft = 0;
+                        this.updateDisplay();
+                        this.updateProgress();
                         this.playNotification();
                         this.handleTimerComplete();
+                    } else {
+                        this.updateDisplay();
+                        this.updateProgress();
                     }
-                }, 1000);
+                }, 100); // Check more frequently than 1s to ensure responsiveness
             }
             
             pauseTimer() {
