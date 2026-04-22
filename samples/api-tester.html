@@ -616,7 +616,12 @@
             statusBadge.classList.remove('hidden');
 
             document.getElementById('res-time').innerHTML = `<i class="fas fa-clock"></i> ${time} ms`;
-            document.getElementById('response-content').innerHTML = `<span style="color:var(--error-color)">${err.message}</span>`;
+            const errorMsg = document.createElement('span');
+            errorMsg.style.color = 'var(--error-color)';
+            errorMsg.textContent = err.message;
+            const content = document.getElementById('response-content');
+            content.innerHTML = '';
+            content.appendChild(errorMsg);
             document.getElementById('response-headers').textContent = 'N/A';
             document.getElementById('response-raw').textContent = err.stack;
         }
