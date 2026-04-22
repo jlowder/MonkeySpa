@@ -544,6 +544,11 @@
             const statusBadge = document.getElementById('res-status');
 
             if(!url) return alert('Please enter a URL');
+            try {
+                new URL(url);
+            } catch (e) {
+                return alert('Invalid URL format. Please include the protocol (e.g., https://).');
+            }
 
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
