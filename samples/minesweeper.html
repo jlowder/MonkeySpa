@@ -432,7 +432,12 @@
                     this.bestTimeDisplay.textContent = '---';
                     return;
                 }
-                const bestTimes = JSON.parse(localStorage.getItem('minesweeper-best-times') || '{}');
+                let bestTimes = {};
+                try {
+                    bestTimes = JSON.parse(localStorage.getItem('minesweeper-best-times') || '{}');
+                } catch (e) {
+                    console.error('Failed to parse best times:', e);
+                }
                 const best = bestTimes[this.currentDifficulty];
                 this.bestTimeDisplay.textContent = best ? best.toString().padStart(3, '0') : '---';
             }
