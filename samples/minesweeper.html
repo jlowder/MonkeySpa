@@ -78,96 +78,153 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
 
+        .custom-difficulty-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f3f7;
+            border-radius: 10px;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .custom-difficulty-form.active {
+            display: flex;
+        }
+
+        .custom-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-input-group label {
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .custom-input-group input {
+            width: 60px;
+            padding: 5px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .btn-small {
+            padding: 5px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .game-info {
             display: flex;
-            gap: 30px;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
             background: #f5f5f5;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .info-item {
             display: flex;
-            gap: 5px;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .info-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #333;
+            background: #222;
+            color: #ff4757;
+            padding: 2px 8px;
+            border-radius: 4px;
+            min-width: 60px;
         }
 
-        #timer {
-            font-family: 'Courier New', monospace;
-            font-size: 1.2rem;
-            color: #667eea;
-        }
-
-        .btn {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
+        .smiley-btn {
+            font-size: 2rem;
+            background: #eee;
+            border: 3px solid;
+            border-color: #fff #bbb #bbb #fff;
+            padding: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            transition: all 0.1s;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        #new-game-btn {
-            margin-bottom: 20px;
+        .smiley-btn:active {
+            border-color: #bbb #fff #fff #bbb;
+            transform: translateY(1px);
         }
 
         .game-board {
             display: grid;
-            border: 4px solid #667eea;
-            border-radius: 8px;
+            border: 8px solid #d1d8e0;
+            border-radius: 4px;
             margin: 20px auto;
             justify-content: center;
             user-select: none;
             overflow: auto;
             max-width: 100%;
-            background: #667eea;
+            background: #d1d8e0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .cell {
-            min-width: 30px;
-            min-height: 30px;
-            background: #667eea;
+            width: 32px;
+            height: 32px;
+            background: #ced6e0;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: all 0.1s ease;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 3px solid;
+            border-color: #f1f2f6 #747d8c #747d8c #f1f2f6;
             box-sizing: border-box;
         }
 
-        .cell:hover:not(.revealed):not(.disabled) {
-            background: #7689f5;
-            border-width: 2px;
+        .cell:active:not(.revealed):not(.flagged) {
+            border: none;
+            background: #a4b0be;
         }
 
         .cell.revealed {
-            background: #e0e0e0;
+            background: #a4b0be;
             cursor: default;
-            border: 1px solid #bbb;
-            box-sizing: border-box;
+            border: 1px solid #747d8c;
         }
 
         .cell.flagged::before {
             content: '🚩';
-            font-size: 1.2rem;
-            outline: none;
+            font-size: 1rem;
         }
 
         .cell.mine {
@@ -232,44 +289,53 @@
         /* Responsive adjustments */
         @media (max-width: 800px) {
             .game-container {
-                padding: 20px;
+                padding: 15px;
+                width: 100%;
+                max-width: 100vw;
+                border-radius: 0;
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                margin-bottom: 15px;
             }
             
             .controls {
                 flex-direction: column;
-                gap: 15px;
-            }
-            
-            .game-info {
-                flex-direction: column;
                 gap: 10px;
             }
             
+            .game-info {
+                padding: 10px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
             .cell {
-                min-width: 27px;
-                min-height: 27px;
-                font-size: 0.9rem;
-                border: 1px solid rgba(255,255,255,0.3);
-            }
-            
-            .game-container {
-                padding: 15px;
-            }
-            
-            .game-container {
-                padding: 15px;
-            }
-            
-            .cell.mine::before, .cell.flagged::before {
+                width: 28px;
+                height: 28px;
                 font-size: 1rem;
-            }
-            
-            .cell:hover:not(.revealed):not(.disabled) {
                 border-width: 2px;
+            }
+
+            .info-value {
+                font-size: 1.2rem;
+                min-width: 50px;
+            }
+
+            .smiley-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+
+            .custom-difficulty-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-input-group {
+                justify-content: space-between;
             }
         }
     </style>
@@ -285,22 +351,42 @@
                     <option value="easy">Easy (9x9, 10 mines)</option>
                     <option value="medium">Medium (16x16, 40 mines)</option>
                     <option value="hard">Hard (30x16, 99 mines)</option>
+                    <option value="custom">Custom</option>
                 </select>
             </div>
             
+            <div id="custom-form" class="custom-difficulty-form">
+                <div class="custom-input-group">
+                    <label for="custom-rows">Rows:</label>
+                    <input type="number" id="custom-rows" min="5" max="50" value="16">
+                </div>
+                <div class="custom-input-group">
+                    <label for="custom-cols">Cols:</label>
+                    <input type="number" id="custom-cols" min="5" max="50" value="30">
+                </div>
+                <div class="custom-input-group">
+                    <label for="custom-mines">Mines:</label>
+                    <input type="number" id="custom-mines" min="1" max="999" value="99">
+                </div>
+                <button id="apply-custom-btn" class="btn-small">Apply</button>
+            </div>
+
             <div class="game-info">
                 <div class="info-item">
-                    <span>Mines:</span>
-                    <span id="mine-count">0</span>
+                    <span class="info-label">Mines</span>
+                    <span id="mine-count" class="info-value">000</span>
+                </div>
+                <button id="new-game-btn" class="smiley-btn">😊</button>
+                <div class="info-item">
+                    <span class="info-label">Time</span>
+                    <span id="timer" class="info-value">000</span>
                 </div>
                 <div class="info-item">
-                    <span>Time:</span>
-                    <span id="timer">000</span>
+                    <span class="info-label">Best</span>
+                    <span id="best-time" class="info-value">---</span>
                 </div>
             </div>
         </div>
-        
-        <button id="new-game-btn" class="btn">New Game</button>
         
         <div id="game-board" class="game-board"></div>
         
@@ -313,9 +399,12 @@
                 this.board = document.getElementById('game-board');
                 this.mineCountDisplay = document.getElementById('mine-count');
                 this.timerDisplay = document.getElementById('timer');
+                this.bestTimeDisplay = document.getElementById('best-time');
                 this.messageDisplay = document.getElementById('message');
                 this.newGameBtn = document.getElementById('new-game-btn');
                 this.difficultySelect = document.getElementById('difficulty');
+                this.customForm = document.getElementById('custom-form');
+                this.applyCustomBtn = document.getElementById('apply-custom-btn');
                 
                 this.difficulties = {
                     easy: { rows: 9, cols: 9, mines: 10 },
@@ -330,16 +419,65 @@
                 this.firstClick = true;
                 this.flags = 0;
                 this.timer = 0;
+                this.startTime = null;
                 this.timerInterval = null;
                 
                 this.setupEventListeners();
+                this.updateBestTimeDisplay();
                 this.startNewGame();
+            }
+
+            updateBestTimeDisplay() {
+                if (this.currentDifficulty === 'custom') {
+                    this.bestTimeDisplay.textContent = '---';
+                    return;
+                }
+                let bestTimes = {};
+                try {
+                    bestTimes = JSON.parse(localStorage.getItem('minesweeper-best-times') || '{}');
+                } catch (e) {
+                    console.error('Failed to parse best times:', e);
+                }
+                const best = bestTimes[this.currentDifficulty];
+                this.bestTimeDisplay.textContent = best ? best.toString().padStart(3, '0') : '---';
+            }
+
+            saveBestTime(time) {
+                if (this.currentDifficulty === 'custom') return false;
+                const bestTimes = JSON.parse(localStorage.getItem('minesweeper-best-times') || '{}');
+                if (!bestTimes[this.currentDifficulty] || time < bestTimes[this.currentDifficulty]) {
+                    bestTimes[this.currentDifficulty] = time;
+                    localStorage.setItem('minesweeper-best-times', JSON.stringify(bestTimes));
+                    this.updateBestTimeDisplay();
+                    return true;
+                }
+                return false;
             }
             
             setupEventListeners() {
                 this.newGameBtn.addEventListener('click', () => this.startNewGame());
                 this.difficultySelect.addEventListener('change', (e) => {
                     this.currentDifficulty = e.target.value;
+                    if (this.currentDifficulty === 'custom') {
+                        this.customForm.classList.add('active');
+                    } else {
+                        this.customForm.classList.remove('active');
+                        this.startNewGame();
+                    }
+                });
+                this.applyCustomBtn.addEventListener('click', () => {
+                    const rows = parseInt(document.getElementById('custom-rows').value);
+                    const cols = parseInt(document.getElementById('custom-cols').value);
+                    const mines = parseInt(document.getElementById('custom-mines').value);
+
+                    if (isNaN(rows) || isNaN(cols) || isNaN(mines)) return;
+
+                    // Sanitize
+                    const safeRows = Math.min(Math.max(rows, 5), 50);
+                    const safeCols = Math.min(Math.max(cols, 5), 50);
+                    const safeMines = Math.min(Math.max(mines, 1), (safeRows * safeCols) - 9);
+
+                    this.difficulties.custom = { rows: safeRows, cols: safeCols, mines: safeMines };
                     this.startNewGame();
                 });
             }
@@ -351,17 +489,21 @@
                 this.firstClick = true;
                 this.flags = 0;
                 this.timer = 0;
+                this.startTime = null;
                 this.grid = [];
                 
+                this.updateBestTimeDisplay();
                 const { rows, cols, mines } = this.difficulties[this.currentDifficulty];
                 
-                this.mineCountDisplay.textContent = mines;
+                this.mineCountDisplay.textContent = mines.toString().padStart(3, '0');
                 this.timerDisplay.textContent = '000';
+                this.newGameBtn.textContent = '😊';
                 this.messageDisplay.classList.add('hidden');
                 
                 // Update board size - use auto-sizing to match cell dimensions
-                this.board.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
-                this.board.style.gridTemplateRows = `repeat(${rows}, 32px)`;
+                const cellSize = window.innerWidth <= 800 ? 28 : 32;
+                this.board.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+                this.board.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
                 
                 // Clear board
                 this.board.innerHTML = '';
@@ -398,10 +540,12 @@
             }
             
             startTimer() {
+                this.startTime = Date.now();
                 this.timerInterval = setInterval(() => {
-                    this.timer++;
+                    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                    this.timer = Math.min(elapsed, 999);
                     this.timerDisplay.textContent = this.timer.toString().padStart(3, '0');
-                }, 1000);
+                }, 100); // More frequent update for better responsiveness
             }
             
             stopTimer() {
@@ -454,7 +598,12 @@
             }
             
             handleLeftClick(row, col) {
-                if (this.gameOver || this.gameWon || this.grid[row][col].isFlagged || this.grid[row][col].isRevealed) {
+                if (this.gameOver || this.gameWon || this.grid[row][col].isFlagged) {
+                    return;
+                }
+
+                if (this.grid[row][col].isRevealed) {
+                    this.chord(row, col);
                     return;
                 }
                 
@@ -473,6 +622,11 @@
                     return;
                 }
                 
+                // Add haptic feedback if supported
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+
                 const cell = this.grid[row][col];
                 cell.isFlagged = !cell.isFlagged;
                 
@@ -484,7 +638,37 @@
                     this.flags--;
                 }
                 
-                this.mineCountDisplay.textContent = this.difficulties[this.currentDifficulty].mines - this.flags;
+                this.mineCountDisplay.textContent = Math.max(0, this.difficulties[this.currentDifficulty].mines - this.flags).toString().padStart(3, '0');
+            }
+
+            chord(row, col) {
+                const { rows, cols } = this.difficulties[this.currentDifficulty];
+                const cell = this.grid[row][col];
+
+                if (!cell.isRevealed || cell.neighborMines === 0) return;
+
+                let flagCount = 0;
+                const neighbors = [];
+
+                for (let r = Math.max(0, row - 1); r <= Math.min(rows - 1, row + 1); r++) {
+                    for (let c = Math.max(0, col - 1); c <= Math.min(cols - 1, col + 1); c++) {
+                        if (r === row && c === col) continue;
+
+                        if (this.grid[r][c].isFlagged) {
+                            flagCount++;
+                        } else if (!this.grid[r][c].isRevealed) {
+                            neighbors.push({ r, c });
+                        }
+                    }
+                }
+
+                if (flagCount === cell.neighborMines) {
+                    for (const n of neighbors) {
+                        this.revealCell(n.r, n.c);
+                        if (this.gameOver) break;
+                    }
+                    this.checkWin();
+                }
             }
             
             revealCell(row, col) {
@@ -525,12 +709,13 @@
             }
             
             checkWin() {
+                if (this.gameOver) return;
                 const { rows, cols, mines } = this.difficulties[this.currentDifficulty];
                 let revealedCount = 0;
                 
                 for (let r = 0; r < rows; r++) {
                     for (let c = 0; c < cols; c++) {
-                        if (this.grid[r][c].isRevealed) revealedCount++;
+                        if (this.grid[r][c].isRevealed && !this.grid[r][c].isMine) revealedCount++;
                     }
                 }
                 
@@ -545,10 +730,13 @@
                 
                 if (won) {
                     this.gameWon = true;
-                    this.messageDisplay.textContent = `🎉 You won in ${this.timer} seconds!`;
+                    this.newGameBtn.textContent = '😎';
+                    const isNewBest = this.saveBestTime(this.timer);
+                    this.messageDisplay.textContent = `🎉 You won in ${this.timer} seconds!${isNewBest ? ' NEW BEST!' : ''}`;
                     this.messageDisplay.className = 'message success';
                     this.flagAllMines();
                 } else {
+                    this.newGameBtn.textContent = '😵';
                     this.messageDisplay.textContent = '💥 Game Over! Better luck next time.';
                     this.messageDisplay.className = 'message game-over';
                     this.revealAllMines();
