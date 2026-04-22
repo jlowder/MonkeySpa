@@ -477,7 +477,12 @@
     </div>
 
     <script>
-        let history = JSON.parse(localStorage.getItem('api_history') || '[]');
+        let history = [];
+        try {
+            history = JSON.parse(localStorage.getItem('api_history') || '[]');
+        } catch (e) {
+            console.error('Failed to parse API history:', e);
+        }
         let currentTheme = localStorage.getItem('api_theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
         updateThemeIcon();
