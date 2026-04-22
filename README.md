@@ -1,5 +1,12 @@
 # Monkey Spa - Webapp Manager
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Browsers](https://img.shields.io/badge/Browsers-Chrome%2091%2B%20%7C%20Firefox%2089%2B%20%7C%20Edge%2091%2B%20%7C%20Safari%2014.1%2B-green?logo=google-chrome)](https://en.wikipedia.org/wiki/Web_browser)
+[![Standalone](https://img.shields.io/badge/Standalone-Yes-green?logo=web-app)](https://en.wikipedia.org/wiki/Standalone_web_application)
+[![Client-Side](https://img.shields.io/badge/Client--Side-Only-blue?logo=javascript)](https://developer.mozilla.org/en-US/docs/Glossary/Client-side)
+[![No Dependencies](https://img.shields.io/badge/Dependencies-None-green)](https://en.wikipedia.org/wiki/Dependency_(software))
+[![IndexedDB](https://img.shields.io/badge/IndexedDB-Storage-blue?logo=mozilla)](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB)
+
 A modern, responsive web application for managing your collection of single-page HTML webapps. Features a beautiful grid interface with metadata tracking, search capabilities, automatic screenshot generation, and easy webapp launching.
 
 ![Monkey Spa Interface](screenshot.png)
