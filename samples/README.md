@@ -130,7 +130,7 @@ A classic 15-puzzle game with customizable display options and animations.
 - Local storage for settings
 - Grid-based game logic
 
----
+---These sample applications are provided as-is for educational and demonstration purposes.
 
 ### 7. Todo App
 
@@ -168,7 +168,9 @@ A comprehensive API testing tool supporting multiple HTTP methods and request ty
 - CORS warning banner
 
 **Technology Stack:**
-- Vanilla JavaScript
+- Vanilla JavaScriptAdd MIT license and update sample apps documentation
+
+Update README with 9 sample apps and detailed documentation
 - Fetch API for HTTP requests
 - Web Storage API
 - CSS custom properties (variables)
@@ -233,4 +235,4 @@ Each sample app is contained within a single HTML file with:
 
 ## License
 
-These sample applications are provided as-is for educational and demonstration purposes.
+MIT
