@@ -70,14 +70,44 @@ with a single file.
 
 ## Sample Webapps
 
-The `samples/` directory contains four example webapps to demonstrate the system:
+The `samples/` directory contains **nine** comprehensive example webapps that demonstrate various frontend development techniques and technologies. Each app is a standalone single-page application with no external dependencies beyond standard web APIs.
 
-1. **Calculator** (`calculator.html`) - A functional calculator with keyboard support
-2. **Todo App** (`todo-app.html`) - A task management application with local storage
-3. **Color Picker** (`color-picker.html`) - A color selection tool with multiple format outputs
-4. **Slide Puzzle** (`slide-puzzle.html`) - A classic sliding tile puzzle game
+### Sample Apps Overview
 
-You can add these sample webapps to test the manager functionality.
+| # | App Name | Description |
+|---|----------|-------------|
+| 1 | [Calculator](samples/README.md#1-calculator) | Scientific calculator with keyboard support |
+| 2 | [Color Picker](samples/README.md#2-color-picker) | RGB/HEX/HSL color generator with presets |
+| 3 | [Minesweeper](samples/README.md#3-minesweeper) | Classic game with difficulty levels and timer |
+| 4 | [Pomodoro Timer](samples/README.md#4-pomodoro-timer) | Productivity tool with work/break cycles |
+| 5 | [Quantum Pass](samples/README.md#5-quantum-pass) | Password generator with strength meter |
+| 6 | [Slide Puzzle](samples/README.md#6-slide-puzzle) | 15-puzzle game with animations |
+| 7 | [Todo App](samples/README.md#7-todo-app) | Task manager with localStorage |
+| 8 | [API Tester](samples/README.md#8-api-tester) | HTTP request tool with multiple methods |
+| 9 | [IP Geo Lookup](samples/README.md#9-ip-geo-lookup) | Location finder with interactive map |
+
+### Detailed Documentation
+
+For detailed documentation of each sample app including key features and technology stack, please refer to the **[samples/README.md](samples/README.md)** file.
+
+### Adding Sample Webapps
+
+You can add any of these sample webapps to test the manager functionality:
+
+1. Open `monkey-spa.html` in your browser
+2. Click "Add Webapp"
+3. Fill in the details (name, description, category)
+4. Upload the HTML file from the `samples/` directory
+5. Click "Save Webapp"
+
+Each sample app demonstrates different frontend technologies:
+- Vanilla JavaScript with modern ES6+ features
+- CSS Grid and Flexbox layouts
+- LocalStorage and IndexedDB for data persistence
+- Web Audio API for notifications
+- Fetch API for HTTP requests
+- Canvas and DOM manipulation for games
+- Third-party libraries (Leaflet.js for mapping)
 
 ## Technical Details
 
@@ -110,3 +140,9 @@ The system is designed to be easily customizable:
 ## License
 
 This project is open source and available under the MIT License.
+
+---
+
+## Sample Applications License
+
+The sample applications in the `samples/` directory are provided as-is for educational and demonstration purposes. They are also open source and available under the MIT License.
