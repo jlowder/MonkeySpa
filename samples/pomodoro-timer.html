@@ -379,6 +379,7 @@
                 this.totalMinutes = 0;
                 this.soundEnabled = true;
                 this.selectedSound = 'bell';
+                this.audioContext = null;
                 
                 // DOM Elements
                 this.timeDisplay = document.getElementById('time');
@@ -411,12 +412,18 @@
                 this.updateStats();
                 
                 // Event Listeners
-                this.startBtn.addEventListener('click', () => this.startTimer());
+                this.startBtn.addEventListener('click', () => {
+                    this.initAudio();
+                    this.startTimer();
+                });
                 this.pauseBtn.addEventListener('click', () => this.pauseTimer());
                 this.resetBtn.addEventListener('click', () => this.resetTimer());
                 this.saveSettingsBtn.addEventListener('click', () => this.saveSettings());
                 this.soundToggle.addEventListener('click', () => this.toggleSound());
-                this.testSoundBtn.addEventListener('click', () => this.playNotification());
+                this.testSoundBtn.addEventListener('click', () => {
+                    this.initAudio();
+                    this.playNotification();
+                });
                 this.soundSelect.addEventListener('change', (e) => this.selectedSound = e.target.value);
                 
                 // Update settings on input change for real-time preview
@@ -477,6 +484,18 @@
                 this.soundEnabled = !this.soundEnabled;
                 this.soundToggle.textContent = this.soundEnabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
                 this.soundToggle.classList.toggle('primary');
+                if (this.soundEnabled) {
+                    this.initAudio();
+                }
+            }
+
+            initAudio() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.audioContext.state === 'suspended') {
+                    this.audioContext.resume();
+                }
             }
             
             startTimer() {
@@ -605,16 +624,14 @@
             }
             
             playNotification() {
-                if (!this.soundEnabled) return;
+                if (!this.soundEnabled || !this.audioContext) return;
                 
                 const playSound = () => {
-                    // Create a simple beep using Web Audio API
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
                     
                     oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
+                    gainNode.connect(this.audioContext.destination);
                     
                     // Different sounds based on selection
                     switch (this.selectedSound) {
@@ -641,11 +658,12 @@
                     }
                     
                     oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, this.audioContext.currentTime + 1);
                     
                     setTimeout(() => {
                         oscillator.stop();
-                        audioContext.close();
+                        oscillator.disconnect();
+                        gainNode.disconnect();
                     }, 1000);
                 };
 
