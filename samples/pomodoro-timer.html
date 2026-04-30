@@ -369,6 +369,8 @@
                 this.timeLeft = 25 * 60;
                 this.originalTime = 25 * 60;
                 this.timerId = null;
+                this.startTime = null;
+                this.timeLeftAtStart = null;
                 this.isRunning = false;
                 this.isWorkTime = true;
                 this.cycleCount = 1;
@@ -391,6 +393,7 @@
                 this.soundSelect = document.getElementById('soundSelect');
                 this.totalSessionsDisplay = document.getElementById('totalSessions');
                 this.totalMinutesDisplay = document.getElementById('totalMinutes');
+                this.testSoundBtn = document.getElementById('testSoundBtn');
                 this.container = document.querySelector('.container');
                 
                 // Settings inputs
@@ -413,6 +416,7 @@
                 this.resetBtn.addEventListener('click', () => this.resetTimer());
                 this.saveSettingsBtn.addEventListener('click', () => this.saveSettings());
                 this.soundToggle.addEventListener('click', () => this.toggleSound());
+                this.testSoundBtn.addEventListener('click', () => this.playNotification());
                 this.soundSelect.addEventListener('change', (e) => this.selectedSound = e.target.value);
                 
                 // Update settings on input change for real-time preview
@@ -479,11 +483,15 @@
                 if (this.isRunning) return;
                 
                 this.isRunning = true;
+                this.startTime = Date.now();
+                this.timeLeftAtStart = this.timeLeft;
                 this.updateControls();
                 this.updateTimerState();
                 
                 this.timerId = setInterval(() => {
-                    this.timeLeft--;
+                    const elapsedSeconds = Math.floor((Date.now() - this.startTime) / 1000);
+                    this.timeLeft = Math.max(0, this.timeLeftAtStart - elapsedSeconds);
+
                     this.updateDisplay();
                     this.updateProgress();
                     
@@ -491,7 +499,7 @@
                         this.playNotification();
                         this.handleTimerComplete();
                     }
-                }, 1000);
+                }, 100);
             }
             
             pauseTimer() {
@@ -599,64 +607,51 @@
             playNotification() {
                 if (!this.soundEnabled) return;
                 
-                // Create a simple beep using Web Audio API
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Different sounds based on selection
-                switch (this.selectedSound) {
-                    case 'bell':
-                        oscillator.frequency.value = 880; // A5
-                        gainNode.gain.value = 0.5;
-                        oscillator.type = 'sine';
-                        break;
-                    case 'chime':
-                        oscillator.frequency.value = 660; // E5
-                        gainNode.gain.value = 0.3;
-                        oscillator.type = 'triangle';
-                        break;
-                    case 'beep':
-                        oscillator.frequency.value = 1200;
-                        gainNode.gain.value = 0.4;
-                        oscillator.type = 'square';
-                        break;
-                    case 'alarm':
-                        oscillator.frequency.value = 440;
-                        gainNode.gain.value = 0.6;
-                        oscillator.type = 'sawtooth';
-                        break;
-                }
-                
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 1);
-                
-                setTimeout(() => {
-                    oscillator.stop();
-                }, 800);
-                
-                // Play a second beep after a short delay for better notification
-                setTimeout(() => {
-                    const oscillator2 = audioContext.createOscillator();
-                    const gainNode2 = audioContext.createGain();
+                const playSound = () => {
+                    // Create a simple beep using Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
                     
-                    oscillator2.connect(gainNode2);
-                    gainNode2.connect(audioContext.destination);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
                     
-                    oscillator2.frequency.value = 880;
-                    gainNode2.gain.value = 0.5;
-                    oscillator2.type = 'sine';
+                    // Different sounds based on selection
+                    switch (this.selectedSound) {
+                        case 'bell':
+                            oscillator.frequency.value = 880; // A5
+                            gainNode.gain.value = 0.5;
+                            oscillator.type = 'sine';
+                            break;
+                        case 'chime':
+                            oscillator.frequency.value = 660; // E5
+                            gainNode.gain.value = 0.3;
+                            oscillator.type = 'triangle';
+                            break;
+                        case 'beep':
+                            oscillator.frequency.value = 1200;
+                            gainNode.gain.value = 0.4;
+                            oscillator.type = 'square';
+                            break;
+                        case 'alarm':
+                            oscillator.frequency.value = 440;
+                            gainNode.gain.value = 0.6;
+                            oscillator.type = 'sawtooth';
+                            break;
+                    }
                     
-                    oscillator2.start();
-                    gainNode2.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 1);
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 1);
                     
                     setTimeout(() => {
-                        oscillator2.stop();
-                    }, 800);
-                }, 1000);
+                        oscillator.stop();
+                        audioContext.close();
+                    }, 1000);
+                };
+
+                // Play two chimes with the same selected sound
+                playSound();
+                setTimeout(playSound, 1000);
             }
         }
         
