@@ -7,23 +7,23 @@
 [![No Dependencies](https://img.shields.io/badge/Dependencies-None-green)](https://en.wikipedia.org/wiki/Dependency_(software))
 [![IndexedDB](https://img.shields.io/badge/IndexedDB-Storage-blue?logo=mozilla)](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB)
 
-A modern, responsive web application for managing your collection of single-page HTML webapps. Features a beautiful grid interface with metadata tracking, search capabilities, automatic screenshot generation, and easy webapp launching.
+Monkey Spa manages your collection of single-page HTML webapps. The grid interface tracks metadata, enables search, generates screenshots, and launches apps in new windows.
 
 ![Monkey Spa Interface](screenshot.png)
 
 ## Features
 
-- **Grid View Interface**: Clean, modern card-based layout showing webapp previews
-- **Automatic Screenshots**: Auto-generated previews of your webapps using html2canvas
-- **Manual Screenshot Upload**: Option to upload custom screenshots for better quality
-- **Metadata Management**: Track name, description, category, tags, usage statistics, and dates
+- **Grid View**: Card-based layout shows webapp previews
+- **Automatic Screenshots**: html2canvas captures previews of your webapps
+- **Manual Screenshot Upload**: Upload custom screenshots at higher resolution than html2canvas generates
+- **Metadata**: Track name, description, category, tags, usage statistics, and dates
 - **Search & Filter**: Find webapps by name, description, or tags with category filtering
-- **CRUD Operations**: Add, edit, and delete webapps with intuitive modals
+- **CRUD Operations**: Add, edit, and delete webapps through modals
 - **Import/Export**: Backup and share webapp collections in JSON or XML format
 - **Usage Tracking**: Monitor when webapps were last used and usage frequency
-- **IndexedDB Storage**: All data persisted locally using IndexedDB, supporting significantly more webapps and larger file sizes than localStorage
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
-- **Modern UI**: Beautiful gradients, smooth animations, and professional styling
+- **IndexedDB Storage**: IndexedDB persists all data locally, storing 500+ webapps with full metadata. LocalStorage caps out around 5MB; IndexedDB handles 50-80MB depending on the browser.
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **UI**: Gradients, animations, and clean styling
 
 ## Getting Started
 
@@ -39,13 +39,13 @@ A modern, responsive web application for managing your collection of single-page
 - Click the "Add Webapp" button
 - Enter a name and description
 - Select a category (Dev Tools, Research, Productivity, Utilities, Fun, Other)
-- Add comma-separated tags for better organization
+- Add comma-separated tags to organize webapps
 - Upload your HTML file
 - Optionally upload a custom screenshot (otherwise one will be auto-generated)
 - Click "Save Webapp"
 
 ### Managing Webapps
-- **Launch**: Click anywhere on a webapp card to open it
+- **Launch**: Click on a webapp card to open it
 - **Edit**: Hover over a card and click the edit icon
 - **Delete**: Hover over a card and click the delete icon
 
@@ -64,13 +64,11 @@ A modern, responsive web application for managing your collection of single-page
   - Choose "Merge" to add new webapps or "Replace" to overwrite all
   - Duplicate prevention by webapp ID
 
-Note that since all apps are serialized into the exported file, this
-makes it easy to transfer your entire app collection to other systems
-with a single file.
+Since all apps serialize into one file, transfer your entire collection by moving that single file to another system.
 
 ## Sample Webapps
 
-The `samples/` directory contains **nine** comprehensive example webapps that demonstrate various frontend development techniques and technologies. Each app is a standalone single-page application with no external dependencies beyond standard web APIs.
+The `samples/` directory contains nine example webapps: a calculator, color picker, Minesweeper, Pomodoro timer, password generator, slide puzzle, todo app, API tester, and IP geolocator. Each app runs standalone with no external dependencies beyond standard web APIs.
 
 ### Sample Apps Overview
 
@@ -88,7 +86,7 @@ The `samples/` directory contains **nine** comprehensive example webapps that de
 
 ### Detailed Documentation
 
-For detailed documentation of each sample app including key features and technology stack, please refer to the **[samples/README.md](samples/README.md)** file.
+The **[samples/README.md](samples/README.md)** file documents each sample's features and technology stack.
 
 ### Adding Sample Webapps
 
@@ -100,7 +98,7 @@ You can add any of these sample webapps to test the manager functionality:
 4. Upload the HTML file from the `samples/` directory
 5. Click "Save Webapp"
 
-Each sample app demonstrates different frontend technologies:
+Each sample app uses different frontend technologies:
 - Vanilla JavaScript with modern ES6+ features
 - CSS Grid and Flexbox layouts
 - LocalStorage and IndexedDB for data persistence
@@ -112,8 +110,8 @@ Each sample app demonstrates different frontend technologies:
 ## Technical Details
 
 ### Data Storage
-- All webapp metadata is stored in browser IndexedDB
-- HTML file contents are stored as text within the webapp data
+- The app stores all webapp metadata in browser IndexedDB
+- The app stores HTML file contents as text within the webapp data
 - No server required - everything runs client-side
 
 ### Browser Compatibility
@@ -123,18 +121,18 @@ Each sample app demonstrates different frontend technologies:
 
 ## Customization
 
-The system is designed to be easily customizable:
+Customize the system by editing the source files:
 
-- **Styling**: Modify `styles.css` to change colors, layouts, or animations
-- **Categories**: Edit the category options in both HTML and JavaScript files
-- **Metadata**: Add new fields by updating the webapp data structure
-- **Features**: Extend functionality by modifying `script.js`
+- **Styling**: Change colors, layouts, or animations in `styles.css`
+- **Categories**: Edit category options in the HTML and JavaScript files
+- **Metadata**: Add new fields to the webapp data structure
+- **Features**: Extend functionality in `script.js`
 
 ## Security Notes
 
 - All webapps run in new browser windows/tabs
 - No server-side processing - everything is client-side
-- HTML content is stored as-is without sanitization
+- The app stores HTML content as-is without sanitization
 - Only use trusted HTML files from known sources
 
 ## License
@@ -145,4 +143,4 @@ This project is open source and available under the MIT License.
 
 ## Sample Applications License
 
-The sample applications in the `samples/` directory are provided as-is for educational and demonstration purposes. They are also open source and available under the MIT License.
+The sample applications in the `samples/` directory are open source under the MIT License, provided for educational and demonstration purposes.
