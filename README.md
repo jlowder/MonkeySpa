@@ -9,6 +9,8 @@
 
 Monkey Spa manages your collection of single-page HTML webapps. The grid interface tracks metadata, enables search, generates screenshots, and launches apps in new windows.
 
+And by the way, Monkey Spa is itself a single-page app. But don't try to add it to itself! That might tempt fate. 
+
 ![Monkey Spa Interface](screenshot.png)
 
 ## Features
