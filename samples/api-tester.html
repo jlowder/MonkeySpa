@@ -1236,6 +1236,7 @@
                 // Build response headers text
                 let responseHeadersText = '';
                 response.headers.forEach((v, k) => responseHeadersText += `${k}: ${v}\n`);
+                document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
                 
                 if (response.body) {
                     if (currentMode === 'stream') {
