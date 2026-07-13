@@ -1116,7 +1116,12 @@
             updateRibbon(null, 'Stopped', 0, 0, true);
             
             const contentPre = document.getElementById('response-content');
-            contentPre.innerHTML = '<span style="color: var(--frost)">Streaming stopped</span>';
+            const stopIndicator = document.createElement('span');
+            stopIndicator.style.color = 'var(--frost)';
+            stopIndicator.style.display = 'block';
+            stopIndicator.style.marginTop = '8px';
+            stopIndicator.textContent = '\n[Streaming stopped]';
+            contentPre.appendChild(stopIndicator);
             
             document.getElementById('response-headers').textContent = 'Streaming stopped';
             document.getElementById('response-raw').textContent = '';
