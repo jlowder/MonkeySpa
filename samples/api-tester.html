@@ -116,7 +116,7 @@
         /* URL Bar */
         .url-bar {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 20px;
         }
 
@@ -127,7 +127,7 @@
             background: var(--input-bg);
             color: var(--text-color);
             font-weight: 700;
-            width: 100px;
+            min-width: 90px;
         }
 
         input#url {
@@ -157,9 +157,24 @@
             transition: all 0.2s;
         }
 
-        .btn-send:hover {
+        .btn-send:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Mode indicators */
+        .btn-send-mode {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .btn-stream-mode {
+            border-left: 4px solid var(--warning-color);
         }
 
         /* Tabs */
@@ -295,6 +310,11 @@
             position: relative;
         }
 
+        .streaming-indicator {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
         pre {
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 0.9rem;
@@ -403,7 +423,8 @@
                         <option value="PATCH">PATCH</option>
                     </select>
                     <input type="text" id="url" placeholder="https://api.example.com/data" value="https://jsonplaceholder.typicode.com/posts/1">
-                    <button class="btn-send" onclick="sendRequest()">SEND</button>
+                    <button class="btn-send btn-send-mode" onclick="handleModeClick('send')" id="btn-send">SEND</button>
+                    <button class="btn-send btn-stream-mode" onclick="handleModeClick('stream')" id="btn-stream">STREAM</button>
                 </div>
 
                 <div class="tabs">
@@ -457,7 +478,7 @@
                 <div id="res-body-tab" class="tab-content active">
                     <div class="response-container">
                         <button class="btn-copy" onclick="copyResponse()"><i class="far fa-copy"></i></button>
-                        <pre id="response-content">Waiting for request...</pre>
+                        <pre id="response-content"><i class="fas fa-spinner fa-spin"></i> Waiting for request...</pre>
                     </div>
                 </div>
 
@@ -486,6 +507,11 @@
         let currentTheme = localStorage.getItem('api_theme') || 'light';
         document.body.setAttribute('data-theme', currentTheme);
         updateThemeIcon();
+        
+        let isStreaming = false;
+        let abortController = null;
+        let responseReader = null;
+        let currentMode = 'send';  // 'send' or 'stream'
 
         // Initial Header
         addHeaderRow('Content-Type', 'application/json');
@@ -536,12 +562,63 @@
             }
         }
 
+        function handleModeClick(mode) {
+            // If already in this mode and actively streaming, stop it
+            if (isStreaming && currentMode === mode) {
+                stopStreaming();
+            } else {
+                // Start new request in the selected mode
+                currentMode = mode;
+                sendRequest();
+            }
+        }
+
+        function stopStreaming() {
+            isStreaming = false;
+            
+            // Abort the fetch (if still in progress)
+            if (abortController) {
+                abortController.abort();
+                abortController = null;
+            }
+            
+            // Close the reader if it exists
+            if (responseReader) {
+                responseReader.cancel().catch(() => {});
+                responseReader = null;
+            }
+            
+            // Update button UI - reset both buttons
+            const sendBtn = document.getElementById('btn-send');
+            const streamBtn = document.getElementById('btn-stream');
+            
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = 'SEND';
+            streamBtn.disabled = false;
+            streamBtn.innerHTML = 'STREAM';
+            
+            // Update status
+            const statusBadge = document.getElementById('res-status');
+            statusBadge.className = 'status-badge status-error';
+            statusBadge.textContent = 'Stopped';
+            
+            // Update content area
+            const contentPre = document.getElementById('response-content');
+            contentPre.innerHTML = '<i class="fas fa-stop-circle"></i> Streaming stopped';
+            
+            // Also update other tabs
+            document.getElementById('response-headers').textContent = 'Streaming stopped';
+            document.getElementById('response-raw').textContent = '';
+        }
+
         async function sendRequest() {
             const url = document.getElementById('url').value;
             const method = document.getElementById('method').value;
             const bodyText = document.getElementById('body').value;
-            const sendBtn = document.querySelector('.btn-send');
             const statusBadge = document.getElementById('res-status');
+            const contentPre = document.getElementById('response-content');
+            const sendBtn = document.getElementById('btn-send');
+            const streamBtn = document.getElementById('btn-stream');
 
             if(!url) return alert('Please enter a URL');
             try {
@@ -550,8 +627,9 @@
                 return alert('Invalid URL format. Please include the protocol (e.g., https://).');
             }
 
+            // Disable both buttons initially
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            streamBtn.disabled = true;
 
             const headers = {};
             document.querySelectorAll('.header-row').forEach(row => {
@@ -560,25 +638,166 @@
             });
 
             const startTime = performance.now();
+            let fullText = '';
+            let totalBytes = 0;
+            let streamCompleted = false;
+            
             try {
-                const options = { method, headers };
+                // Create abort controller for this request
+                abortController = new AbortController();
+                isStreaming = true;
+                
+                const options = { method, headers, signal: abortController.signal };
                 if (['POST', 'PUT', 'PATCH'].includes(method)) options.body = bodyText;
 
                 const response = await fetch(url, options);
+                
+                // Show status immediately
+                statusBadge.className = `status-badge ${response.ok ? 'status-ok' : 'status-error'}`;
+                statusBadge.textContent = `${response.status} ${response.statusText}`;
+                statusBadge.classList.remove('hidden');
+                
+                // Update button UI based on selected mode
+                const sendBtn = document.getElementById('btn-send');
+                const streamBtn = document.getElementById('btn-stream');
+                
+                if (currentMode === 'stream') {
+                    // STREAMING mode: active button shows STOP
+                    isStreaming = true;
+                    streamBtn.disabled = false;
+                    streamBtn.innerHTML = '<i class="fas fa-stop"></i> STOP';
+                    sendBtn.disabled = true;
+                    contentPre.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Streaming...';
+                } else {
+                    // SEND mode: active button shows Loading
+                    isStreaming = false;
+                    sendBtn.disabled = true;
+                    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                    streamBtn.disabled = true;
+                    contentPre.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading response...';
+                }
+                
+                // Clear all response areas
+                document.getElementById('response-headers').textContent = 'Headers available below';
+                document.getElementById('response-raw').textContent = '';
+                document.getElementById('res-time').innerHTML = '<i class="fas fa-clock"></i> 0 ms';
+                document.getElementById('res-size').innerHTML = '<i class="fas fa-database"></i> 0 KB';
+
+                // Build response headers text
+                let responseHeadersText = '';
+                response.headers.forEach((v, k) => responseHeadersText += `${k}: ${v}\n`);
+                
+                // Check if response has body
+                if (response.body) {
+                    if (currentMode === 'stream') {
+                        // STREAMING MODE: Read chunks progressively
+                        const reader = response.body.getReader();
+                        responseReader = reader;  // Store reference for cancellation
+                        const decoder = new TextDecoder();
+                        
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            
+                            // Decode chunk and append
+                            const chunkText = decoder.decode(value, { stream: true });
+                            fullText += chunkText;
+                            totalBytes += value.byteLength;
+                            
+                            // Update display in real-time
+                            const elapsed = Math.round(performance.now() - startTime);
+                            const sizeKB = (totalBytes / 1024).toFixed(2);
+                            
+                            document.getElementById('res-time').innerHTML = `<i class="fas fa-clock"></i> ${elapsed} ms`;
+                            document.getElementById('res-size').innerHTML = `<i class="fas fa-database"></i> ${sizeKB} KB`;
+                            
+                            // Update all three response tabs
+                            contentPre.textContent = fullText;
+                            document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
+                            document.getElementById('response-raw').textContent = fullText;
+                        }
+                        
+                        streamCompleted = true;
+                        
+                        // Stream finished - reset button
+                        streamBtn.disabled = false;
+                        streamBtn.innerHTML = 'STREAM';
+                        sendBtn.disabled = false;
+                        isStreaming = false;
+                    } else {
+                        // SEND MODE: Read entire response at once
+                        fullText = await response.text();
+                        totalBytes = new Blob([fullText]).size;
+                        
+                        // Reset both buttons
+                        sendBtn.disabled = false;
+                        sendBtn.innerHTML = 'SEND';
+                        streamBtn.disabled = false;
+                        streamBtn.innerHTML = 'STREAM';
+                        isStreaming = false;
+                    }
+                } else {
+                    // No body - read as text
+                    fullText = await response.text();
+                    totalBytes = new Blob([fullText]).size;
+                    
+                    // Reset both buttons
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = 'SEND';
+                    streamBtn.disabled = false;
+                    streamBtn.innerHTML = 'STREAM';
+                    isStreaming = false;
+                }
+
+                // Final render
                 const endTime = performance.now();
                 const duration = Math.round(endTime - startTime);
+                const size = (totalBytes / 1024).toFixed(2);
 
-                const data = await response.text();
-                const size = (new Blob([data]).size / 1024).toFixed(2);
+                document.getElementById('res-time').innerHTML = `<i class="fas fa-clock"></i> ${duration} ms`;
+                document.getElementById('res-size').innerHTML = `<i class="fas fa-database"></i> ${size} KB`;
 
-                displayResponse(response, data, duration, size);
+                // Format final response body
+                try {
+                    const json = JSON.parse(fullText);
+                    contentPre.innerHTML = highlightJSON(json);
+                } catch(e) {
+                    contentPre.textContent = fullText;
+                }
+
+                // Headers
+                document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
+
+                // Raw
+                document.getElementById('response-raw').textContent = fullText;
+
+                // Clear reader reference
+                responseReader = null;
+
+                // Add to history
                 addToHistory(method, url);
             } catch(e) {
                 const endTime = performance.now();
-                displayError(e, Math.round(endTime - startTime));
-            } finally {
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = 'SEND';
+                const sendBtn = document.getElementById('btn-send');
+                const streamBtn = document.getElementById('btn-stream');
+                
+                if (e.name === 'AbortError') {
+                    // User clicked STOP while streaming
+                    isStreaming = false;
+                    abortController = null;
+                    streamBtn.disabled = false;
+                    streamBtn.innerHTML = 'STREAM';
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = 'SEND';
+                } else {
+                    displayError(e, Math.round(endTime - startTime));
+                    isStreaming = false;
+                    abortController = null;
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = 'SEND';
+                    streamBtn.disabled = false;
+                    streamBtn.innerHTML = 'STREAM';
+                }
             }
         }
 
@@ -607,6 +826,9 @@
 
             // Raw
             document.getElementById('response-raw').textContent = data;
+            
+            // NOTE: displayResponse is now a fallback for non-streaming paths.
+            // The main sendRequest() uses in-line streaming display.
         }
 
         function displayError(err, time) {
