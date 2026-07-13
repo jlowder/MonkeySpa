@@ -3,192 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Tester Pro</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext y='.75em' x='12' font-size='70' fill='white' font-family='Arial' font-weight='bold'%3EAPI%3C/text%3E%3C/svg%3E">
+    <title>API Tester</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23161b22'/%3E%3Cpath d='M10 20 L22 10 L22 30 L34 20' stroke='%2358a6ff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --text-color: #2d3436;
-            --border-color: #dfe6e9;
-            --input-bg: #f9f9f9;
-            --success-color: #00b894;
-            --error-color: #d63031;
-            --warning-color: #fdcb6e;
-            --code-bg: #2d3436;
-            --code-text: #dfe6e9;
+            /* Palette */
+            --ink: #0d1117;
+            --stone: #161b22;
+            --fog: #21262d;
+            --frost: #8b949e;
+            --polar: #c9d1d9;
+            --arctic: #f0f6fc;
+            
+            /* Accents */
+            --signal: #3b82f6;
+            --signal-dim: rgba(59, 130, 246, 0.15);
+            
+            /* Semantic */
+            --success: #238636;
+            --warning: #d29922;
+            --error: #da3633;
+            
+            /* Method colors */
+            --method-get: #58a6ff;
+            --method-post: #238636;
+            --method-put: #d29922;
+            --method-delete: #da3633;
+            --method-patch: #8957e5;
+            
+            /* Type */
+            --font-interface: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-code: 'IBM Plex Mono', 'SF Mono', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            
+            /* Borders */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
         }
 
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --card-bg: #2d2d2d;
-            --text-color: #e0e0e0;
-            --border-color: #404040;
-            --input-bg: #333333;
-            --code-bg: #1a1a1a;
+        [data-theme="light"] {
+            --ink: #ffffff;
+            --stone: #f6f8fa;
+            --fog: #ebf0f4;
+            --frost: #656d76;
+            --polar: #24292f;
+            --arctic: #0d1117;
+            --signal-dim: rgba(59, 130, 246, 0.1);
         }
 
-        * {
+        /* Reset */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: var(--font-interface);
+            font-size: 14px;
+            background: var(--ink);
+            color: var(--polar);
             min-height: 100vh;
-            transition: all 0.3s ease;
-            line-height: 1.6;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--stone);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--fog);
+            border: 2px solid var(--stone);
+            border-radius: 6px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--frost);
+        }
+
+        /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: var(--space-lg);
         }
 
-        header {
+        /* Header */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--fog);
         }
 
-        h1 {
-            font-size: 2rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
+        .header-title {
+            font-family: var(--font-code);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--arctic);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .header-title .icon {
+            width: 24px;
+            height: 24px;
         }
 
         .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--fog);
+            background: var(--stone);
+            color: var(--frost);
             cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            transition: var(--transition-fast);
         }
 
         .theme-toggle:hover {
-            transform: rotate(15deg);
+            border-color: var(--signal);
+            color: var(--signal);
         }
 
+        /* URL Hero */
+        .url-hero {
+            margin-bottom: var(--space-lg);
+        }
+
+        .url-bar {
+            display: flex;
+            align-items: stretch;
+            background: var(--stone);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-fast);
+        }
+
+        .url-bar:focus-within {
+            border-color: var(--signal);
+            box-shadow: 0 0 0 3px var(--signal-dim);
+        }
+
+        .method-select {
+            appearance: none;
+            border: none;
+            border-right: 1px solid var(--fog);
+            background: var(--fog);
+            color: var(--arctic);
+            font-family: var(--font-code);
+            font-size: 14px;
+            font-weight: 600;
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            min-width: 100px;
+            text-align: center;
+            transition: var(--transition-fast);
+        }
+
+        .method-select:hover {
+            background: var(--frost);
+        }
+
+        .method-select option {
+            background: var(--stone);
+            color: var(--arctic);
+            font-weight: 600;
+        }
+
+        .url-input {
+            flex: 1;
+            appearance: none;
+            border: none;
+            background: transparent;
+            color: var(--arctic);
+            font-family: var(--font-code);
+            font-size: 16px;
+            padding: var(--space-md);
+        }
+
+        .url-input::placeholder {
+            color: var(--frost);
+            opacity: 0.6;
+        }
+
+        .url-input:focus {
+            outline: none;
+        }
+
+        .url-actions {
+            display: flex;
+        }
+
+        .btn {
+            font-family: var(--font-interface);
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xs);
+        }
+
+        .btn-icon {
+            width: 36px;
+        }
+
+        .btn-primary {
+            background: var(--signal);
+            color: white;
+            padding: 0 var(--space-lg);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: var(--fog);
+            color: var(--polar);
+            padding: 0 var(--space-md);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            border-left: 1px solid var(--stone);
+        }
+
+        .btn-secondary.btn-icon {
+            padding: 0 var(--space-sm);
+        }
+
+        .btn-secondary:hover {
+            background: var(--frost);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-icon .icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Grid */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
         }
 
+        /* Cards */
         .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
+            background: var(--stone);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
         }
 
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 20px;
+        .card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--fog);
+            border-bottom: 1px solid var(--fog);
         }
 
-        /* URL Bar */
-        .url-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        .card-title {
+            font-family: var(--font-code);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--frost);
         }
 
-        select#method {
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid var(--border-color);
-            background: var(--input-bg);
-            color: var(--text-color);
-            font-weight: 700;
-            width: 100px;
+        /* Status Badge in Card */
+        .status-badge {
+            font-family: var(--font-code);
+            font-size: 12px;
+            font-weight: 600;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            background: var(--stone);
         }
 
-        input#url {
-            flex: 1;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border: 2px solid var(--border-color);
-            background: var(--input-bg);
-            color: var(--text-color);
-            font-family: 'Courier New', monospace;
+        .status-badge.ok {
+            color: var(--success);
+            background: rgba(35, 134, 54, 0.15);
         }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn-send {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            padding: 0 24px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-send:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        .status-badge.error {
+            color: var(--error);
+            background: rgba(218, 54, 51, 0.15);
         }
 
         /* Tabs */
         .tabs {
             display: flex;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 20px;
+            padding: 0 var(--space-lg);
+            background: var(--stone);
+            border-bottom: 1px solid var(--fog);
+            gap: var(--space-xs);
         }
 
         .tab {
-            padding: 10px 20px;
+            padding: var(--space-md) var(--space-sm);
+            font-family: var(--font-interface);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--frost);
+            background: none;
+            border: none;
             cursor: pointer;
-            font-weight: 600;
-            color: #7f8c8d;
             position: relative;
+            transition: var(--transition-fast);
+        }
+
+        .tab:hover {
+            color: var(--polar);
         }
 
         .tab.active {
-            color: var(--primary-color);
+            color: var(--signal);
         }
 
         .tab.active::after {
             content: '';
             position: absolute;
-            bottom: -2px;
+            bottom: calc(-1px - var(--space-lg));
             left: 0;
-            width: 100%;
+            right: 0;
             height: 2px;
-            background: var(--primary-color);
+            background: var(--signal);
         }
 
         .tab-content {
@@ -199,297 +392,621 @@
             display: block;
         }
 
-        /* Headers Editor */
-        .header-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .header-row input {
-            flex: 1;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: var(--input-bg);
-            color: var(--text-color);
-            font-size: 0.9rem;
-        }
-
-        .btn-remove {
-            color: var(--error-color);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .btn-add {
-            color: var(--primary-color);
-            background: none;
-            border: 1px dashed var(--primary-color);
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
         /* Request Body */
-        textarea#body {
+        .request-body {
+            padding: var(--space-lg);
+        }
+
+        .body-textarea {
             width: 100%;
-            height: 200px;
-            background: var(--input-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            font-family: 'Courier New', monospace;
+            min-height: 200px;
+            background: var(--ink);
+            color: var(--polar);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            font-family: var(--font-code);
+            font-size: 14px;
             resize: vertical;
+            line-height: 1.6;
+        }
+
+        .body-textarea:focus {
+            outline: none;
+            border-color: var(--signal);
+        }
+
+        .body-textarea::placeholder {
+            color: var(--frost);
+            opacity: 0.5;
         }
 
         .body-actions {
             display: flex;
             justify-content: flex-end;
-            margin-top: 10px;
+            margin-top: var(--space-sm);
         }
 
-        .btn-small {
-            padding: 4px 12px;
-            font-size: 0.8rem;
-            border-radius: 4px;
+        .btn-tertiary {
+            font-family: var(--font-interface);
+            font-size: 12px;
+            color: var(--frost);
+            background: none;
+            border: none;
             cursor: pointer;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--text-color);
+            padding: var(--space-xs) var(--space-sm);
+            transition: var(--transition-fast);
         }
 
-        /* Response View */
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            margin-left: auto;
+        .btn-tertiary:hover {
+            color: var(--signal);
         }
 
-        .status-ok { background: rgba(0, 184, 148, 0.1); color: var(--success-color); }
-        .status-error { background: rgba(214, 48, 49, 0.1); color: var(--error-color); }
+        /* Headers Editor */
+        .headers-editor {
+            padding: var(--space-lg);
+        }
 
+        .header-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            align-items: center;
+        }
+
+        .header-row input {
+            flex: 1;
+            background: var(--ink);
+            color: var(--polar);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm) var(--space-md);
+            font-family: var(--font-code);
+            font-size: 13px;
+        }
+
+        .header-row input:focus {
+            outline: none;
+            border-color: var(--signal);
+        }
+
+        .header-row input::placeholder {
+            color: var(--frost);
+            opacity: 0.5;
+        }
+
+        .btn-remove {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--stone);
+            color: var(--frost);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+
+        .btn-remove:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: var(--space-sm) var(--space-md);
+            margin-top: var(--space-sm);
+            border: 1px dashed var(--frost);
+            border-radius: var(--radius-sm);
+            background: none;
+            color: var(--frost);
+            font-family: var(--font-interface);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-add:hover {
+            border-color: var(--signal);
+            color: var(--signal);
+            background: var(--signal-dim);
+        }
+
+        /* Response */
         .response-meta {
             display: flex;
-            gap: 15px;
-            font-size: 0.85rem;
-            color: #7f8c8d;
-            margin-bottom: 15px;
+            gap: var(--space-md);
+            padding: var(--space-sm) var(--space-lg);
+            font-size: 12px;
+            color: var(--frost);
+            background: var(--stone);
+            border-bottom: 1px solid var(--fog);
+        }
+
+        .response-meta .item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .response-meta .item .icon {
+            width: 12px;
+            height: 12px;
+        }
+
+        .response-body {
+            padding: var(--space-lg);
+            background: var(--ink);
+            min-height: 200px;
         }
 
         .response-container {
-            background: var(--code-bg);
-            color: var(--code-text);
-            padding: 20px;
-            border-radius: 8px;
+            background: var(--stone);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-sm);
+            padding: var(--space-md);
+            font-family: var(--font-code);
+            font-size: 13px;
+            line-height: 1.6;
             overflow: auto;
-            max-height: 600px;
+            max-height: 400px;
             position: relative;
         }
 
-        pre {
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
-            word-break: break-all;
+        .response-container.streaming {
+            border-color: var(--warning);
         }
 
         .btn-copy {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.1);
+            top: var(--space-sm);
+            right: var(--space-sm);
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
             border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
+            background: var(--fog);
+            color: var(--polar);
             cursor: pointer;
-            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
         }
 
-        /* History */
+        .btn-copy:hover {
+            background: var(--signal);
+            color: white;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* JSON Syntax Highlighting */
+        .json-key { color: #7ee787; }
+        .json-string { color: #a5d6ff; }
+        .json-number { color: #79c0ff; }
+        .json-boolean { color: #d2a8ff; }
+        .json-null { color: #90b2f4; }
+
+        [data-theme="light"] .json-key { color: #0969da; }
+        [data-theme="light"] .json-string { color: #0969da; }
+        [data-theme="light"] .json-number { color: #0969da; }
+        [data-theme="light"] .json-boolean { color: #8957e5; }
+        [data-theme="light"] .json-null { color: #8250df; }
+
+        /* Status Ribbon */
+        .status-ribbon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--stone);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
+            font-family: var(--font-code);
+            font-size: 13px;
+            transition: var(--transition-normal);
+        }
+
+        .status-ribbon.ready {
+            border-color: var(--frost);
+        }
+
+        .status-ribbon.active {
+            border-color: var(--signal);
+            box-shadow: 0 0 0 3px var(--signal-dim);
+        }
+
+        .status-ribbon .method {
+            font-weight: 700;
+            color: var(--signal);
+        }
+
+        .status-ribbon .arrow {
+            color: var(--frost);
+            font-size: 16px;
+        }
+
+        .status-ribbon .status {
+            font-weight: 600;
+        }
+
+        .status-ribbon .status.ok { color: var(--success); }
+        .status-ribbon .status.error { color: var(--error); }
+
+        .status-ribbon .time {
+            color: var(--frost);
+        }
+
+        .status-ribbon .size {
+            color: var(--frost);
+        }
+
+        /* History Section */
+        .history-section {
+            background: var(--stone);
+            border: 1px solid var(--fog);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-md) var(--space-lg);
+            background: var(--fog);
+            border-bottom: 1px solid var(--fog);
+        }
+
+        .history-title {
+            font-family: var(--font-code);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--frost);
+        }
+
+        .btn-clear {
+            font-family: var(--font-interface);
+            font-size: 12px;
+            color: var(--frost);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-clear:hover {
+            color: var(--polar);
+        }
+
         .history-list {
             list-style: none;
-            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .history-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-md);
+            padding: var(--space-sm) var(--space-lg);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: var(--transition-fast);
+            border-bottom: 1px solid transparent;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
         }
 
         .history-item:hover {
-            background: rgba(102, 126, 234, 0.05);
+            background: var(--fog);
+            border-bottom-color: var(--fog);
         }
 
-        .hist-method {
-            font-weight: 800;
-            font-size: 0.75rem;
+        .history-method {
+            font-family: var(--font-code);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
             min-width: 50px;
+            text-align: center;
+            color: white;
         }
 
-        .hist-url {
-            font-size: 0.85rem;
+        .history-method.GET { background: var(--method-get); }
+        .history-method.POST { background: var(--method-post); }
+        .history-method.PUT { background: var(--method-put); }
+        .history-method.DELETE { background: var(--method-delete); }
+        .history-method.PATCH { background: var(--method-patch); }
+
+        .history-url {
+            flex: 1;
+            font-family: var(--font-code);
+            font-size: 13px;
+            color: var(--polar);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* JSON Highlighting */
-        .json-key { color: #81ecec; }
-        .json-string { color: #fab1a0; }
-        .json-number { color: #55efc4; }
-        .json-boolean { color: #74b9ff; }
-        .json-null { color: #a29bfe; }
-
-        /* CORS Banner */
-        .cors-banner {
-            background: var(--warning-color);
-            color: #000;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
+        .history-time {
+            font-size: 12px;
+            color: var(--frost);
         }
 
+        .history-empty {
+            padding: var(--space-xl);
+            text-align: center;
+            color: var(--frost);
+        }
+
+        /* Streaming indicator */
+        .streaming-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--warning);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .streaming-dot .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--warning);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn var(--transition-normal) ease;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Utility */
         .hidden { display: none !important; }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body data-theme="light">
+<body data-theme="dark">
     <div class="container">
-        <header>
-            <h1><i class="fas fa-rocket"></i> API Tester Pro</h1>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
-                <i class="fas fa-moon"></i>
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header-title">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12v-2a8 8 0 0 1 8-8 8 8 0 0 1 8 8v2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20a8 8 0 0 0 8-8h-8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20a8 8 0 0 1-8-8h8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                API Tester
+            </h1>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                <span class="icon theme-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
             </button>
         </header>
 
-        <div class="cors-banner">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Note: Browser CORS policy might block requests. Use a CORS proxy if needed.</span>
-        </div>
-
-        <div class="main-grid">
-            <!-- Request Panel -->
-            <div class="card">
-                <div class="section-title">
-                    <i class="fas fa-paper-plane"></i> Request
-                </div>
-
-                <div class="url-bar">
-                    <select id="method">
-                        <option value="GET">GET</option>
-                        <option value="POST">POST</option>
-                        <option value="PUT">PUT</option>
-                        <option value="DELETE">DELETE</option>
-                        <option value="PATCH">PATCH</option>
-                    </select>
-                    <input type="text" id="url" placeholder="https://api.example.com/data" value="https://jsonplaceholder.typicode.com/posts/1">
-                    <button class="btn-send" onclick="sendRequest()">SEND</button>
-                </div>
-
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab('request', 'body-tab', this)">Body</div>
-                    <div class="tab" onclick="switchTab('request', 'headers-tab', this)">Headers</div>
-                    <div class="tab" onclick="switchTab('request', 'history-tab', this)">History</div>
-                </div>
-
-                <div id="body-tab" class="tab-content active">
-                    <textarea id="body" placeholder='{ "key": "value" }'></textarea>
-                    <div class="body-actions">
-                        <button class="btn-small" onclick="beautifyJSON()">Beautify</button>
-                    </div>
-                </div>
-
-                <div id="headers-tab" class="tab-content">
-                    <div id="headers-list">
-                        <!-- Header rows inserted here -->
-                    </div>
-                    <button class="btn-add" onclick="addHeaderRow()">
-                        <i class="fas fa-plus"></i> Add Header
+        <!-- URL Hero -->
+        <div class="url-hero">
+            <div class="url-bar">
+                <select class="method-select" id="method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                </select>
+                <input type="text" class="url-input" id="url" placeholder="https://api.example.com/endpoint" value="https://jsonplaceholder.typicode.com/posts/1">
+                <div class="url-actions">
+                    <button class="btn btn-primary" onclick="handleModeClick('send')" id="btn-send">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span id="send-btn-text">SEND</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="handleModeClick('stream')" id="btn-stream">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v4m0 12v4M2 12h4m12 0h4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span id="stream-btn-text">STREAM</span>
                     </button>
                 </div>
+            </div>
+        </div>
 
-                <div id="history-tab" class="tab-content">
-                    <div id="history-list" class="history-list">
-                        <!-- History items here -->
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Request Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Request</span>
+                    <span id="req-status" class="status-badge hidden"></span>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('request', 'req-body-tab', this)">Body</button>
+                    <button class="tab" onclick="switchTab('request', 'req-headers-tab', this)">Headers</button>
+                </div>
+
+                <div id="req-body-tab" class="tab-content active">
+                    <div class="request-body">
+                        <textarea class="body-textarea" id="body" placeholder='{"key": "value"}'></textarea>
+                        <div class="body-actions">
+                            <button class="btn-tertiary" onclick="beautifyJSON()">Format JSON</button>
+                        </div>
                     </div>
-                    <button class="btn-small" style="width: 100%; margin-top: 10px;" onclick="clearHistory()">Clear History</button>
+                </div>
+
+                <div id="req-headers-tab" class="tab-content">
+                    <div class="headers-editor" id="headers-list">
+                        <!-- Header rows inserted here -->
+                    </div>
+                    <div style="padding: 0 var(--space-lg) var(--space-lg)">
+                        <button class="btn-add" onclick="addHeaderRow()">
+                            + Add Header
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Response Panel -->
+            <!-- Response Card -->
             <div class="card">
-                <div class="section-title">
-                    <i class="fas fa-reply"></i> Response
+                <div class="card-header">
+                    <span class="card-title">Response</span>
                     <span id="res-status" class="status-badge hidden"></span>
                 </div>
 
                 <div class="response-meta">
-                    <span id="res-time"><i class="fas fa-clock"></i> -- ms</span>
-                    <span id="res-size"><i class="fas fa-database"></i> -- KB</span>
+                    <span class="item" id="res-time">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span>-- ms</span>
+                    </span>
+                    <span class="item" id="res-size">
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="17 8 12 3 7 8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="12" y1="3" x2="12" y2="15" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span>-- KB</span>
+                    </span>
                 </div>
 
                 <div class="tabs">
-                    <div class="tab active" onclick="switchTab('response', 'res-body-tab', this)">Body</div>
-                    <div class="tab" onclick="switchTab('response', 'res-headers-tab', this)">Headers</div>
-                    <div class="tab" onclick="switchTab('response', 'res-raw-tab', this)">Raw</div>
+                    <button class="tab active" onclick="switchTab('response', 'res-body-tab', this)">Body</button>
+                    <button class="tab" onclick="switchTab('response', 'res-headers-tab', this)">Headers</button>
+                    <button class="tab" onclick="switchTab('response', 'res-raw-tab', this)">Raw</button>
                 </div>
 
                 <div id="res-body-tab" class="tab-content active">
-                    <div class="response-container">
-                        <button class="btn-copy" onclick="copyResponse()"><i class="far fa-copy"></i></button>
-                        <pre id="response-content">Waiting for request...</pre>
+                    <div class="response-body">
+                        <div class="response-container" id="response-container">
+                            <button class="btn-copy" onclick="copyResponse()" aria-label="Copy response">
+                                <span class="icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <pre id="response-content"><span style="color: var(--frost)"><span class="streaming-dot"><span class="dot"></span> Ready</span></span></pre>
+                        </div>
                     </div>
                 </div>
 
                 <div id="res-headers-tab" class="tab-content">
-                    <div class="response-container">
-                        <pre id="response-headers">No headers yet...</pre>
+                    <div class="response-body">
+                        <div class="response-container">
+                            <pre id="response-headers">--</pre>
+                        </div>
                     </div>
                 </div>
 
                 <div id="res-raw-tab" class="tab-content">
-                    <div class="response-container">
-                        <pre id="response-raw">No raw data yet...</pre>
+                    <div class="response-body">
+                        <div class="response-container">
+                            <pre id="response-raw">--</pre>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Status Ribbon -->
+        <div class="status-ribbon" id="status-ribbon">
+            <span class="method" id="ribbon-method">&#8594;</span>
+            <span class="status" id="ribbon-status">Ready</span>
+            <span class="time" id="ribbon-time"></span>
+            <span class="size" id="ribbon-size"></span>
+        </div>
+
+        <!-- History Section -->
+        <section class="history-section">
+            <div class="history-header">
+                <span class="history-title">Request History</span>
+                <button class="btn-clear" onclick="clearHistory()">Clear all</button>
+            </div>
+            <ul class="history-list" id="main-history-list">
+                <!-- History items here -->
+            </ul>
+        </section>
     </div>
 
     <script>
+        // State
         let history = [];
         try {
             history = JSON.parse(localStorage.getItem('api_history') || '[]');
         } catch (e) {
             console.error('Failed to parse API history:', e);
         }
-        let currentTheme = localStorage.getItem('api_theme') || 'light';
+        
+        let currentTheme = localStorage.getItem('api_theme') || 'dark';
         document.body.setAttribute('data-theme', currentTheme);
         updateThemeIcon();
+        
+        let isStreaming = false;
+        let abortController = null;
+        let responseReader = null;
+        let currentMode = 'send';
+        let requestStartTime = 0;
 
-        // Initial Header
+        // Initialize with default header
         addHeaderRow('Content-Type', 'application/json');
+        renderHistory();
 
+        // Theme Toggle
         function toggleTheme() {
             currentTheme = currentTheme === 'light' ? 'dark' : 'light';
             document.body.setAttribute('data-theme', currentTheme);
@@ -498,15 +1015,27 @@
         }
 
         function updateThemeIcon() {
-            const icon = document.querySelector('.theme-toggle i');
-            icon.className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            const iconContainer = document.querySelector('.theme-icon');
+            if (currentTheme === 'light') {
+                iconContainer.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+            } else {
+                iconContainer.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>`;
+            }
         }
 
+        // Tab switching
         function switchTab(group, tabId, el) {
             const parent = el.parentElement;
             parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
-
+            
             const container = parent.parentElement;
             container.querySelectorAll('.tab-content').forEach(c => {
                 c.classList.remove('active');
@@ -514,114 +1043,351 @@
             document.getElementById(tabId).classList.add('active');
         }
 
+        // Headers
         function addHeaderRow(key = '', value = '') {
             const list = document.getElementById('headers-list');
             const row = document.createElement('div');
             row.className = 'header-row';
             row.innerHTML = `
-                <input type="text" placeholder="Key" value="${key}">
-                <input type="text" placeholder="Value" value="${value}">
-                <button class="btn-remove" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+                <input type="text" placeholder="Key" value="${key}" ${key ? 'aria-value="' + key + '"' : ''}>
+                <input type="text" placeholder="Value" value="${value}" ${value ? 'aria-value="' + value + '"' : ''}>
+                <button class="btn-remove" aria-label="Remove header">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             `;
+            row.querySelector('.btn-remove').addEventListener('click', function() {
+                row.remove();
+            });
             list.appendChild(row);
         }
 
+        // Body formatting
         function beautifyJSON() {
             const textarea = document.getElementById('body');
             try {
                 const obj = JSON.parse(textarea.value);
                 textarea.value = JSON.stringify(obj, null, 2);
             } catch(e) {
-                alert('Invalid JSON');
+                // Simple visual feedback
+                textarea.style.borderColor = 'var(--error)';
+                setTimeout(() => textarea.style.borderColor = '', 500);
             }
         }
 
+        // Mode handling
+        function handleModeClick(mode) {
+            if (isStreaming && currentMode === mode) {
+                stopStreaming();
+            } else {
+                currentMode = mode;
+                sendRequest();
+            }
+        }
+
+        function stopStreaming() {
+            isStreaming = false;
+            
+            if (abortController) {
+                abortController.abort();
+                abortController = null;
+            }
+            
+            if (responseReader) {
+                responseReader.cancel().catch(() => {});
+                responseReader = null;
+            }
+            
+            const sendBtn = document.getElementById('btn-send');
+            const streamBtn = document.getElementById('btn-stream');
+            
+            sendBtn.disabled = false;
+            document.getElementById('send-btn-text').textContent = 'SEND';
+            streamBtn.disabled = false;
+            document.getElementById('stream-btn-text').textContent = 'STREAM';
+            
+            // Update status
+            const statusBadge = document.getElementById('res-status');
+            statusBadge.className = 'status-badge error';
+            statusBadge.textContent = 'Stopped';
+            
+            // Update ribbon
+            updateRibbon(null, 'Stopped', 0, 0, true);
+            
+            const contentPre = document.getElementById('response-content');
+            const stopIndicator = document.createElement('span');
+            stopIndicator.style.color = 'var(--frost)';
+            stopIndicator.style.display = 'block';
+            stopIndicator.style.marginTop = '8px';
+            stopIndicator.textContent = '\n[Streaming stopped]';
+            contentPre.appendChild(stopIndicator);
+            
+            document.getElementById('response-headers').textContent = 'Streaming stopped';
+            document.getElementById('response-raw').textContent = '';
+        }
+
+        function updateRibbon(method, status, time, size, isError = false) {
+            const ribbon = document.getElementById('status-ribbon');
+            const methodEl = document.getElementById('ribbon-method');
+            const statusEl = document.getElementById('ribbon-status');
+            const timeEl = document.getElementById('ribbon-time');
+            const sizeEl = document.getElementById('ribbon-size');
+            
+            if (method) {
+                methodEl.textContent = method + ' →';
+                methodEl.style.color = getMethodColor(method);
+            } else {
+                methodEl.textContent = '→';
+            }
+            
+            statusEl.textContent = status;
+            statusEl.className = 'status ' + (isError ? 'error' : (status >= 200 && status < 300 ? 'ok' : ''));
+            
+            timeEl.textContent = time ? `• ${time} ms` : '';
+            sizeEl.textContent = size ? `• ${size} KB` : '';
+        }
+
+        // Main request handler
         async function sendRequest() {
-            const url = document.getElementById('url').value;
+            const url = document.getElementById('url').value.trim();
             const method = document.getElementById('method').value;
             const bodyText = document.getElementById('body').value;
-            const sendBtn = document.querySelector('.btn-send');
-            const statusBadge = document.getElementById('res-status');
-
-            if(!url) return alert('Please enter a URL');
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
             try {
                 new URL(url);
             } catch (e) {
-                return alert('Invalid URL format. Please include the protocol (e.g., https://).');
+                alert('Invalid URL format. Please include the protocol (e.g., https://).');
+                return;
             }
 
+            const sendBtn = document.getElementById('btn-send');
+            const streamBtn = document.getElementById('btn-stream');
             sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            streamBtn.disabled = true;
 
             const headers = {};
             document.querySelectorAll('.header-row').forEach(row => {
                 const inputs = row.querySelectorAll('input');
-                if(inputs[0].value) headers[inputs[0].value] = inputs[1].value;
+                if (inputs[0].value) {
+                    headers[inputs[0].value] = inputs[1].value;
+                }
             });
 
-            const startTime = performance.now();
+            requestStartTime = performance.now();
+            let fullText = '';
+            let totalBytes = 0;
+            
             try {
-                const options = { method, headers };
-                if (['POST', 'PUT', 'PATCH'].includes(method)) options.body = bodyText;
+                abortController = new AbortController();
+                isStreaming = true;
+                
+                const options = { 
+                    method, 
+                    headers, 
+                    signal: abortController.signal 
+                };
+                if (['POST', 'PUT', 'PATCH'].includes(method)) {
+                    options.body = bodyText;
+                }
 
                 const response = await fetch(url, options);
+                
+                // Update status badge
+                const resStatusBadge = document.getElementById('res-status');
+                resStatusBadge.className = `status-badge ${response.ok ? 'ok' : 'error'}`;
+                resStatusBadge.textContent = `${response.status} ${response.statusText}`;
+                resStatusBadge.classList.remove('hidden');
+                
+                // Update ribbon
+                updateRibbon(method, `${response.status} ${response.statusText}`, 0, 0, !response.ok);
+                
+                // Update ribbon state
+                const ribbon = document.getElementById('status-ribbon');
+                ribbon.classList.remove('ready');
+                ribbon.classList.add('active');
+                
+                // Update buttons
+                if (currentMode === 'stream') {
+                    isStreaming = true;
+                    streamBtn.disabled = false;
+                    document.getElementById('stream-btn-text').innerHTML = '<span class="streaming-dot"><span class="dot"></span> STREAMING</span>';
+                    sendBtn.disabled = true;
+                    document.getElementById('response-content').innerHTML = 
+                        '<span style="color: var(--frost)"><span class="streaming-dot"><span class="dot"></span> Streaming response...</span></span>';
+                } else {
+                    isStreaming = false;
+                    sendBtn.disabled = true;
+                    document.getElementById('send-btn-text').innerHTML = '<span class="streaming-dot"><span class="dot"></span></span> Loading';
+                    streamBtn.disabled = true;
+                    document.getElementById('response-content').innerHTML = 
+                        '<span style="color: var(--frost)"><span class="streaming-dot"><span class="dot"></span></span> Loading...</span>';
+                }
+                
+                // Clear response areas
+                document.getElementById('response-headers').textContent = 'Loading...';
+                document.getElementById('response-raw').textContent = '';
+                
+                // Build response headers text
+                let responseHeadersText = '';
+                response.headers.forEach((v, k) => responseHeadersText += `${k}: ${v}\n`);
+                document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
+                
+                if (response.body) {
+                    if (currentMode === 'stream') {
+                        const reader = response.body.getReader();
+                        responseReader = reader;
+                        const decoder = new TextDecoder();
+                        
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            
+                            fullText += decoder.decode(value, { stream: true });
+                            totalBytes += value.byteLength;
+                            
+                            const elapsed = Math.round(performance.now() - requestStartTime);
+                            const sizeKB = (totalBytes / 1024).toFixed(2);
+                            
+                            document.getElementById('res-time').innerHTML = `
+                                <span class="icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span>${elapsed} ms</span>`;
+                            document.getElementById('res-size').innerHTML = `
+                                <span class="icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <polyline points="17 8 12 3 7 8" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="12" y1="3" x2="12" y2="15" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                                <span>${sizeKB} KB</span>`;
+                            
+                            updateRibbon(method, `${response.status} ${response.statusText}`, elapsed, sizeKB, !response.ok);
+                            
+                            document.getElementById('response-content').textContent = fullText;
+                            document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
+                            document.getElementById('response-raw').textContent = fullText;
+                        }
+                        
+                        // Stream complete
+                        streamBtn.disabled = false;
+                        document.getElementById('stream-btn-text').textContent = 'STREAM';
+                        sendBtn.disabled = false;
+                        document.getElementById('send-btn-text').textContent = 'SEND';
+                        isStreaming = false;
+                    } else {
+                        fullText = await response.text();
+                        totalBytes = new Blob([fullText]).size;
+                        
+                        sendBtn.disabled = false;
+                        document.getElementById('send-btn-text').textContent = 'SEND';
+                        streamBtn.disabled = false;
+                        document.getElementById('stream-btn-text').textContent = 'STREAM';
+                        isStreaming = false;
+                    }
+                } else {
+                    fullText = await response.text();
+                    totalBytes = new Blob([fullText]).size;
+                    
+                    sendBtn.disabled = false;
+                    document.getElementById('send-btn-text').textContent = 'SEND';
+                    streamBtn.disabled = false;
+                    document.getElementById('stream-btn-text').textContent = 'STREAM';
+                    isStreaming = false;
+                }
+
                 const endTime = performance.now();
-                const duration = Math.round(endTime - startTime);
+                const duration = Math.round(endTime - requestStartTime);
+                const size = (totalBytes / 1024).toFixed(2);
 
-                const data = await response.text();
-                const size = (new Blob([data]).size / 1024).toFixed(2);
+                document.getElementById('res-time').innerHTML = `
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span>${duration} ms</span>`;
+                document.getElementById('res-size').innerHTML = `
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="17 8 12 3 7 8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="12" y1="3" x2="12" y2="15" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span>${size} KB</span>`;
 
-                displayResponse(response, data, duration, size);
+                // Format response body
+                try {
+                    const json = JSON.parse(fullText);
+                    document.getElementById('response-content').innerHTML = highlightJSON(json);
+                } catch(e) {
+                    document.getElementById('response-content').textContent = fullText;
+                }
+
+                document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
+                document.getElementById('response-raw').textContent = fullText;
+                
+                responseReader = null;
+                
+                // Update ribbon on complete
+                updateRibbon(method, `${response.status} ${response.statusText}`, duration, size, !response.ok);
+                
+                // Add to history
                 addToHistory(method, url);
+                
+                // Remove active state after animation
+                setTimeout(() => {
+                    document.getElementById('status-ribbon').classList.remove('active');
+                    document.getElementById('status-ribbon').classList.add('ready');
+                }, 2000);
+                
             } catch(e) {
                 const endTime = performance.now();
-                displayError(e, Math.round(endTime - startTime));
-            } finally {
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = 'SEND';
+                
+                if (e.name === 'AbortError') {
+                    isStreaming = false;
+                    abortController = null;
+                    streamBtn.disabled = false;
+                    document.getElementById('stream-btn-text').textContent = 'STREAM';
+                    sendBtn.disabled = false;
+                    document.getElementById('send-btn-text').textContent = 'SEND';
+                } else {
+                    const duration = Math.round(endTime - requestStartTime);
+                    displayError(e, duration);
+                    
+                    isStreaming = false;
+                    abortController = null;
+                    sendBtn.disabled = false;
+                    document.getElementById('send-btn-text').textContent = 'SEND';
+                    streamBtn.disabled = false;
+                    document.getElementById('stream-btn-text').textContent = 'STREAM';
+                }
             }
-        }
-
-        function displayResponse(res, data, time, size) {
-            const statusBadge = document.getElementById('res-status');
-            statusBadge.className = `status-badge ${res.ok ? 'status-ok' : 'status-error'}`;
-            statusBadge.textContent = `${res.status} ${res.statusText}`;
-            statusBadge.classList.remove('hidden');
-
-            document.getElementById('res-time').innerHTML = `<i class="fas fa-clock"></i> ${time} ms`;
-            document.getElementById('res-size').innerHTML = `<i class="fas fa-database"></i> ${size} KB`;
-
-            // Format Body
-            const content = document.getElementById('response-content');
-            try {
-                const json = JSON.parse(data);
-                content.innerHTML = highlightJSON(json);
-            } catch(e) {
-                content.textContent = data;
-            }
-
-            // Headers
-            let headerText = '';
-            res.headers.forEach((v, k) => headerText += `${k}: ${v}\n`);
-            document.getElementById('response-headers').textContent = headerText || 'No headers returned';
-
-            // Raw
-            document.getElementById('response-raw').textContent = data;
         }
 
         function displayError(err, time) {
             const statusBadge = document.getElementById('res-status');
-            statusBadge.className = 'status-badge status-error';
+            statusBadge.className = 'status-badge error';
             statusBadge.textContent = 'Error';
             statusBadge.classList.remove('hidden');
 
-            document.getElementById('res-time').innerHTML = `<i class="fas fa-clock"></i> ${time} ms`;
-            const errorMsg = document.createElement('span');
-            errorMsg.style.color = 'var(--error-color)';
-            errorMsg.textContent = err.message;
+            updateRibbon(null, 'Error', time, 0, true);
+            
             const content = document.getElementById('response-content');
-            content.innerHTML = '';
-            content.appendChild(errorMsg);
+            content.innerHTML = `<span style="color: var(--error)">Network Error: ${err.message}</span>`;
+            
             document.getElementById('response-headers').textContent = 'N/A';
             document.getElementById('response-raw').textContent = err.stack;
         }
@@ -650,33 +1416,46 @@
             const content = document.getElementById('response-content').innerText;
             navigator.clipboard.writeText(content).then(() => {
                 const btn = document.querySelector('.btn-copy');
-                btn.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => btn.innerHTML = '<i class="far fa-copy"></i>', 2000);
+                btn.innerHTML = '<span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+                setTimeout(() => {
+                    btn.innerHTML = '<span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+                }, 2000);
             });
         }
 
         function addToHistory(method, url) {
             history = history.filter(h => h.url !== url || h.method !== method);
-            history.unshift({ method, url, time: new Date().toLocaleTimeString() });
+            history.unshift({ 
+                method, 
+                url, 
+                time: new Date().toLocaleTimeString(),
+                timestamp: Date.now()
+            });
             history = history.slice(0, 20);
             localStorage.setItem('api_history', JSON.stringify(history));
             renderHistory();
         }
 
         function renderHistory() {
-            const list = document.getElementById('history-list');
-            list.innerHTML = history.map(h => `
-                <div class="history-item" onclick="loadHistory('${h.method}', '${h.url}')">
-                    <span class="hist-method" style="color: ${getMethodColor(h.method)}">${h.method}</span>
-                    <span class="hist-url">${h.url}</span>
-                </div>
-            `).join('') || '<div style="text-align:center;padding:20px;color:#7f8c8d">No history yet</div>';
+            const mainList = document.getElementById('main-history-list');
+            
+            const html = history.length ? history.map(h => `
+                <li class="history-item" onclick="loadHistory('${h.method}', '${h.url}')">
+                    <span class="history-method ${h.method}">${h.method}</span>
+                    <span class="history-url">${h.url}</span>
+                    <span class="history-time">${h.time}</span>
+                </li>
+            `).join('') : `
+                <li class="history-empty">No requests yet. Make your first request above.</li>
+            `;
+            
+            mainList.innerHTML = html;
         }
 
         function loadHistory(method, url) {
             document.getElementById('method').value = method;
             document.getElementById('url').value = url;
-            switchTab('request', 'body-tab', document.querySelector('.tab'));
+            switchTab('request', 'req-body-tab', document.querySelector('.tab'));
         }
 
         function clearHistory() {
@@ -685,13 +1464,16 @@
             renderHistory();
         }
 
-        function getMethodColor(m) {
-            const colors = { GET: '#00b894', POST: '#fdcb6e', PUT: '#0984e3', DELETE: '#d63031', PATCH: '#6c5ce7' };
-            return colors[m] || '#636e72';
+        function getMethodColor(method) {
+            const colors = {
+                'GET': 'var(--method-get)',
+                'POST': 'var(--method-post)',
+                'PUT': 'var(--method-put)',
+                'DELETE': 'var(--method-delete)',
+                'PATCH': 'var(--method-patch)'
+            };
+            return colors[method] || 'var(--signal)';
         }
-
-        // Initialize history
-        renderHistory();
     </script>
 </body>
 </html>
