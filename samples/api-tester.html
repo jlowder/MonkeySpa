@@ -799,6 +799,63 @@
             display: block;
         }
 
+        /* CORS Warning Banner */
+        .cors-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+            padding: var(--space-sm) var(--space-md);
+            background: rgba(210, 153, 34, 0.1);
+            border: 1px solid rgba(210, 153, 34, 0.4);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            line-height: 1.5;
+            animation: fadeIn var(--transition-normal) ease;
+        }
+
+        [data-theme="light"] .cors-banner {
+            background: rgba(210, 153, 34, 0.15);
+            border-color: rgba(210, 153, 34, 0.6);
+        }
+
+        .cors-banner .banner-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--warning);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .cors-banner .banner-text {
+            flex: 1;
+            color: var(--polar);
+        }
+
+        .cors-banner .banner-line {
+            display: block;
+        }
+
+        .cors-banner .banner-line-sub {
+            color: var(--frost);
+        }
+
+        .cors-banner .banner-close {
+            flex-shrink: 0;
+            margin-left: var(--space-xs);
+            background: none;
+            border: none;
+            color: var(--frost);
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .cors-banner .banner-close:hover {
+            color: var(--polar);
+        }
+
         /* Utility */
         .hidden { display: none !important; }
     </style>
@@ -856,6 +913,18 @@
                         <span id="stream-btn-text">STREAM</span>
                     </button>
                 </div>
+            </div>
+            <!-- Cross-origin (CORS) warning banner -->
+            <div class="cors-banner hidden" id="cors-banner" role="alert">
+                <span class="icon banner-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="12" y1="9" x2="12" y2="13" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <div class="banner-text" id="cors-banner-text"></div>
+                <button class="banner-close" id="cors-banner-close" aria-label="Dismiss warning">&times;</button>
             </div>
         </div>
 
@@ -1005,6 +1074,71 @@
         // Initialize with default header
         addHeaderRow('Content-Type', 'application/json');
         renderHistory();
+
+        // Cross-origin (CORS) banner state
+        let corsDismissed = false;
+        let corsCheckTimer = null;
+
+        // One helper reused by the banner, the error diagnostics, and the
+        // response-headers note. Unparseable / relative / non-http(s) URLs are
+        // treated as not cross-origin. file:// pages have origin "null".
+        function getCorsInfo(url) {
+            const info = { isCrossOrigin: false, isFilePage: false, targetOrigin: null, pageOrigin: null };
+            let parsed;
+            try {
+                parsed = new URL(url);
+            } catch (e) {
+                return info;
+            }
+            if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                return info;
+            }
+            info.targetOrigin = parsed.origin;
+            info.isFilePage = location.protocol === 'file:';
+            info.pageOrigin = (location.protocol === 'file:' || location.origin === 'null') ? 'null' : location.origin;
+            info.isCrossOrigin = info.targetOrigin !== info.pageOrigin;
+            return info;
+        }
+
+        function updateCorsBanner() {
+            const banner = document.getElementById('cors-banner');
+            const textEl = document.getElementById('cors-banner-text');
+            const info = getCorsInfo(document.getElementById('url').value.trim());
+
+            if (!info.isCrossOrigin) {
+                corsDismissed = false; // reset so a later cross-origin URL re-shows it
+                banner.classList.add('hidden');
+                return;
+            }
+            if (corsDismissed) {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            // Static strings only — textContent, never innerHTML with user data.
+            textEl.innerHTML = '';
+            const line1 = document.createElement('span');
+            line1.className = 'banner-line';
+            line1.textContent = 'Cross-origin request — the target server must send CORS headers (Access-Control-Allow-Origin) and handle preflight (OPTIONS) for non-simple requests, or the browser will block the response.';
+            textEl.appendChild(line1);
+            if (info.isFilePage) {
+                const line2 = document.createElement('span');
+                line2.className = 'banner-line banner-line-sub';
+                line2.textContent = 'You are running from file://, so the browser sends Origin: null — the server must use a wildcard (*) origin; an origin allowlist will not match.';
+                textEl.appendChild(line2);
+            }
+            banner.classList.remove('hidden');
+        }
+
+        document.getElementById('url').addEventListener('input', function() {
+            if (corsCheckTimer) clearTimeout(corsCheckTimer);
+            corsCheckTimer = setTimeout(updateCorsBanner, 300);
+        });
+        document.getElementById('cors-banner-close').addEventListener('click', function() {
+            corsDismissed = true;
+            document.getElementById('cors-banner').classList.add('hidden');
+        });
+        updateCorsBanner();
 
         // Theme Toggle
         function toggleTheme() {
@@ -1171,12 +1305,18 @@
             sendBtn.disabled = true;
             streamBtn.disabled = true;
 
+            const corsInfo = getCorsInfo(url);
+            const hasBody = bodyText.trim().length > 0;
             const headers = {};
             document.querySelectorAll('.header-row').forEach(row => {
                 const inputs = row.querySelectorAll('input');
-                if (inputs[0].value) {
-                    headers[inputs[0].value] = inputs[1].value;
-                }
+                const name = inputs[0].value.trim();
+                const value = inputs[1].value.trim();
+                if (!name || !value) return; // skip rows with an empty name or value
+                // A Content-Type on a bodyless request is meaningless and forces a
+                // CORS preflight that fails on non-CORS servers — skip it.
+                if (!hasBody && name.toLowerCase() === 'content-type') return;
+                headers[name] = value;
             });
 
             requestStartTime = performance.now();
@@ -1192,7 +1332,7 @@
                     headers, 
                     signal: abortController.signal 
                 };
-                if (['POST', 'PUT', 'PATCH'].includes(method)) {
+                if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && hasBody) {
                     options.body = bodyText;
                 }
 
@@ -1233,9 +1373,14 @@
                 document.getElementById('response-headers').textContent = 'Loading...';
                 document.getElementById('response-raw').textContent = '';
                 
-                // Build response headers text
+                // Build response headers text; for cross-origin responses append
+                // a note once (the stream/raw render sites reuse this same string).
                 let responseHeadersText = '';
                 response.headers.forEach((v, k) => responseHeadersText += `${k}: ${v}\n`);
+                if (corsInfo.isCrossOrigin) {
+                    const note = 'Cross-origin: the browser only exposes response headers the server listed in Access-Control-Expose-Headers.';
+                    responseHeadersText = responseHeadersText ? responseHeadersText + '\n' + note : note;
+                }
                 document.getElementById('response-headers').textContent = responseHeadersText || 'No headers returned';
                 
                 if (response.body) {
@@ -1355,6 +1500,12 @@
                 
             } catch(e) {
                 const endTime = performance.now();
+                responseReader = null;
+                // Don't leave the ribbon stuck in the "active" state after a
+                // failed/aborted request.
+                const ribbon = document.getElementById('status-ribbon');
+                ribbon.classList.remove('active');
+                ribbon.classList.add('ready');
                 
                 if (e.name === 'AbortError') {
                     isStreaming = false;
@@ -1365,7 +1516,7 @@
                     document.getElementById('send-btn-text').textContent = 'SEND';
                 } else {
                     const duration = Math.round(endTime - requestStartTime);
-                    displayError(e, duration);
+                    displayError(e, duration, { url, method });
                     
                     isStreaming = false;
                     abortController = null;
@@ -1377,7 +1528,7 @@
             }
         }
 
-        function displayError(err, time) {
+        function displayError(err, time, context) {
             const statusBadge = document.getElementById('res-status');
             statusBadge.className = 'status-badge error';
             statusBadge.textContent = 'Error';
@@ -1386,10 +1537,41 @@
             updateRibbon(null, 'Error', time, 0, true);
             
             const content = document.getElementById('response-content');
-            content.innerHTML = `<span style="color: var(--error)">Network Error: ${err.message}</span>`;
+            content.innerHTML = '';
+            
+            // A TypeError from fetch is a network/CORS-level failure (not an
+            // HTTP status; AbortError is handled before this is called).
+            const isNetworkLevel = err instanceof TypeError || err.name === 'TypeError';
+            if (isNetworkLevel && context && context.url) {
+                const corsInfo = getCorsInfo(context.url);
+                if (corsInfo.isCrossOrigin) {
+                    appendErrorLine(content, `${context.method} ${context.url} — network/CORS-level failure`, 'var(--error)');
+                    appendErrorLine(content, 'The request was sent and the server may have received it — check the server logs.', 'var(--frost)');
+                    appendErrorLine(content, 'The browser blocked or discarded the response because the server did not return CORS headers (Access-Control-Allow-Origin), or the preflight OPTIONS request failed.', 'var(--frost)');
+                    appendErrorLine(content, 'Fix: the server should send Access-Control-Allow-Origin (or *) on every response, and answer preflight OPTIONS with a 2xx status plus Access-Control-Allow-Methods and Access-Control-Allow-Headers (e.g. Content-Type).', 'var(--frost)');
+                    if (corsInfo.isFilePage) {
+                        appendErrorLine(content, 'You are running from file://, so the browser sends Origin: null — the server must use a wildcard (*) origin; an origin allowlist will not match.', 'var(--frost)');
+                    }
+                } else {
+                    appendErrorLine(content, `Could not reach ${context.url} — is the server running?`, 'var(--error)');
+                }
+                appendErrorLine(content, `Underlying error: ${err.message}`, 'var(--frost)');
+            } else {
+                appendErrorLine(content, `Network Error: ${err.message}`, 'var(--error)');
+            }
             
             document.getElementById('response-headers').textContent = 'N/A';
-            document.getElementById('response-raw').textContent = err.stack;
+            document.getElementById('response-raw').textContent = err.stack || String(err);
+        }
+
+        // Safe multi-line error rendering: textContent only, never innerHTML
+        // with user-influenced strings (URL, error messages).
+        function appendErrorLine(container, text, color) {
+            const line = document.createElement('span');
+            line.style.display = 'block';
+            line.style.color = color;
+            line.textContent = text;
+            container.appendChild(line);
         }
 
         function highlightJSON(json) {
@@ -1455,6 +1637,7 @@
         function loadHistory(method, url) {
             document.getElementById('method').value = method;
             document.getElementById('url').value = url;
+            updateCorsBanner();
             switchTab('request', 'req-body-tab', document.querySelector('.tab'));
         }
 
